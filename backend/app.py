@@ -10,6 +10,10 @@ from models.provider_service import ProviderService
 from models.booking import Booking
 from models.review import Review
 from routes.auth_routes import auth_bp
+from routes.provider_routes import provider_bp
+from routes.admin_routes import admin_bp
+from routes.booking_routes import booking_bp
+from routes.review_routes import review_bp
 
 app = Flask(__name__)
 app.config.from_object(Config)
@@ -17,6 +21,10 @@ app.config.from_object(Config)
 CORS(app)
 db.init_app(app)
 app.register_blueprint(auth_bp, url_prefix="/auth")
+app.register_blueprint(provider_bp, url_prefix="/provider")
+app.register_blueprint(admin_bp, url_prefix="/admin")
+app.register_blueprint(booking_bp, url_prefix="/booking")
+app.register_blueprint(review_bp, url_prefix="/review")
 
 @app.route("/")
 def home():
