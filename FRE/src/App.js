@@ -2,13 +2,14 @@ import { BrowserRouter as Router, Routes, Route } from "react-router-dom";
 import HomePage from "./pages/Homepage";
 import LoginPage from "./pages/Loginpage";
 import "./App.css";
+import Customerdashboard from "./DashBoard/Customer/Customerdashboard";
 import Bookservice from "./DashBoard/Customer/Bookservice";
 import Mybookings from "./DashBoard/Customer/Mybookings";
-import Customerdashboard from "./DashBoard/Customer/Customerdashboard";
-import "./Styles/dashboard.css";
-// import ProviderDashboard from "./DashBoard/Provider/ProviderDashboard";
+import Providerdashboard from "./DashBoard/Provider/Providerdashboard";
+import Servicerequests from "./DashBoard/Provider/Servicerequests";
+import Activejobs from "./DashBoard/Provider/Activejobs";
 // import AdminDashboard from "./DashBoard/Admin/AdminDashboard";
-
+import "./Styles/dashboard.css";
 function App() {
 
   return (
@@ -16,11 +17,15 @@ function App() {
       <Routes>
         <Route path="/" element={<HomePage />} />
         <Route path="/login" element={<LoginPage />} />
+        
         <Route path="/customer-dashboard" element={<Customerdashboard />} />
         <Route path="/book-service" element={<Bookservice />} />
         <Route path="/my-bookings" element={<Mybookings />} />
 
-        {/* <Route path="/provider-dashboard" element={<ProviderDashboard />} /> */}
+        <Route path="/provider-dashboard" element={<Providerdashboard />} />
+        <Route path="/service-requests" element={<Servicerequests />} />
+        <Route path="/active-jobs" element={<Activejobs />} />
+
         {/* <Route path="/admin-dashboard" element={<AdminDashboard />} /> */}
       </Routes>
     </Router>

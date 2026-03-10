@@ -12,9 +12,8 @@ function LoginPage() {
   const [role, setRole] = useState("");
   const [error, setError] = useState("");
 
-  const [openRole, setOpenRole] = useState(false);   // NEW STATE FOR DROPDOWN
+  const [openRole, setOpenRole] = useState(false);  
 
-  /* email validation with allowed domains */
   const validateEmail = (email) => {
 
     const cleanEmail = email.trim().toLowerCase();

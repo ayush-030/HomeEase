@@ -31,7 +31,7 @@ export const bookings = [
   {
     id: 2,
     service: "House Cleaning",
-    date: "15 March",
+    date: "08 March",
     status: "Completed"
   }
 ];
