@@ -7,7 +7,7 @@ function Mybookings() {
   return (
     <div className="dashboard-container">
 
-      <Sidebar />
+      <Sidebar role="customer" />
 
       <div className="dashboard-content">
 

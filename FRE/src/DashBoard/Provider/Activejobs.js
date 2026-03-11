@@ -11,7 +11,7 @@ function Activejobs(){
 
     <div className="dashboard-container">
 
-      <Sidebar />
+      <Sidebar role="provider" />
 
       <div className="dashboard-content">
 

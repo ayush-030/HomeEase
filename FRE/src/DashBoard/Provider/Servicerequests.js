@@ -11,7 +11,7 @@ function Servicerequests(){
 
     <div className="dashboard-container">
 
-      <Sidebar />
+      <Sidebar role="provider" />
 
       <div className="dashboard-content">
 
