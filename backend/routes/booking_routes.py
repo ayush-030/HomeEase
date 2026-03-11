@@ -42,3 +42,21 @@ def update_booking_status(booking_id):
     db.session.commit()
 
     return jsonify({"message": "Booking status updated"})
+
+@booking_bp.route("/provider/<provider_id>", methods=["GET"])
+def get_provider_bookings(provider_id):
+
+    bookings = Booking.query.filter_by(provider_id=provider_id).all()
+
+    results = []
+
+    for b in bookings:
+        results.append({
+            "id": b.id,
+            "customer_id": b.customer_id,
+            "date": str(b.booking_date),
+            "time": str(b.booking_time),
+            "status": b.status
+        })
+
+    return jsonify(results)

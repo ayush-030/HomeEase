@@ -1,0 +1,5 @@
+@import "tailwindcss";
+/* Reset default Vite styles */
+body {
+  margin: 0;
+}
