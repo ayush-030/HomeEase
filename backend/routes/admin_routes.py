@@ -16,3 +16,21 @@ def approve_provider(provider_id):
     db.session.commit()
 
     return jsonify({"message": "Provider approved successfully"})
+
+@admin_bp.route("/providers", methods=["GET"])
+def get_providers():
+
+    providers = ProviderProfile.query.all()
+
+    result = []
+
+    for p in providers:
+        result.append({
+            "id": p.id,
+            "user_id": p.user_id,
+            "bio": p.bio,
+            "experience": p.experience_years,
+            "approved": p.is_approved
+        })
+
+    return jsonify(result)
