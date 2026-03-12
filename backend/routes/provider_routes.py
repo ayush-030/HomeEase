@@ -1,6 +1,7 @@
 from flask import Blueprint, request, jsonify
 from models.user import db
 from models.provider_profile import ProviderProfile
+from models.review import Review
 
 provider_bp = Blueprint("provider", __name__)
 
@@ -54,3 +55,23 @@ def search_providers():
             })
 
     return jsonify(results)
+
+@provider_bp.route("/ratings/<provider_id>", methods=["GET"])
+def get_provider_rating(provider_id):
+
+    reviews = Review.query.filter_by(provider_id=provider_id).all()
+
+    if len(reviews) == 0:
+        return jsonify({
+            "average": 0,
+            "count": 0
+        })
+
+    total = sum(r.rating for r in reviews)
+
+    avg = total / len(reviews)
+
+    return jsonify({
+        "average": round(avg, 1),
+        "count": len(reviews)
+    })

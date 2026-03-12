@@ -1,9 +1,24 @@
-import { useState } from "react"
+import { useEffect, useState } from "react"
+import { FaStar } from "react-icons/fa"
 import BookingModal from "./BookingModal"
+import API from "../services/api"
 
 export default function ProviderCard({ provider }) {
 
   const [showModal, setShowModal] = useState(false)
+  const [rating, setRating] = useState({ average: 0, count: 0 })
+
+  const fetchRating = async () => {
+
+    const res = await API.get(`/provider/ratings/${provider.provider_id}`)
+
+    setRating(res.data)
+
+  }
+
+  useEffect(() => {
+    fetchRating()
+  }, [])
 
   return (
 
@@ -17,9 +32,23 @@ export default function ProviderCard({ provider }) {
         {provider.bio}
       </p>
 
-      <p className="text-sm text-gray-500 mb-4">
+      <p className="text-sm text-gray-500 mb-3">
         Experience: {provider.experience} years
       </p>
+
+      <div className="flex items-center gap-2 mb-4 text-yellow-500">
+
+        <FaStar />
+
+        <span className="text-gray-700 font-medium">
+          {rating.average}
+        </span>
+
+        <span className="text-gray-500 text-sm">
+          ({rating.count} reviews)
+        </span>
+
+      </div>
 
       <button
         onClick={() => setShowModal(true)}
@@ -36,5 +65,6 @@ export default function ProviderCard({ provider }) {
       )}
 
     </div>
+
   )
 }
