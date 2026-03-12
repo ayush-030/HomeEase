@@ -1,270 +1,307 @@
-.dashboard-container{
-  display:flex;
-  font-family: Arial, sans-serif;
+/* ----------- GLOBAL BACKGROUND ----------- */
+
+body{
+  margin:0;
+  font-family:"Poppins",sans-serif;
+  background:linear-gradient(135deg,#0f172a,#1e293b,#334155);
+  min-height:100vh;
+  color:#e2e8f0;
+  font-size:16px;
 }
 
+/* ----------- DASHBOARD LAYOUT ----------- */
+
+.dashboard-container{
+  display:flex;
+  min-height:100vh;
+}
+
+/* ----------- SIDEBAR ----------- */
+
 .sidebar{
-  width:220px;
-  height:100vh;
-  background:#647fa9;
+  width:260px;
+  backdrop-filter:blur(16px);
+  background:rgba(255,255,255,0.08);
+  border-right:1px solid rgba(255,255,255,0.08);
+  padding:28px 22px;
   color:white;
-  padding:20px;
+  box-shadow:0 0 25px rgba(0,0,0,0.35);
+}
+.sidebar .logo{
+  display:block;
+  font-size:28px;
+  font-weight:700;
+  color:white;
+  text-decoration:none;
+  margin-bottom:15px;
+  letter-spacing:1px;
+}
+
+.sidebar h2{
+  font-size:24px;
+  font-weight:600;
+  margin-bottom:28px;
+  color:white;
 }
 
 .sidebar a{
   display:block;
-  margin:12px 0;
-  color:black;
+  padding:12px 16px;
+  margin:8px 0;
+  border-radius:10px;
   text-decoration:none;
+  color:#cbd5f5;
+  font-size:15px;
+  transition:all 0.25s ease;
 }
+
+.sidebar a:hover{
+  background:rgba(255,255,255,0.15);
+  color:white;
+  transform:translateX(5px);
+}
+
+/* ----------- CONTENT AREA ----------- */
 
 .dashboard-content{
   flex:1;
-  padding:40px;
-  background:#f9fafb;
+  padding:48px;
 }
 
-.services-grid{
-  display:grid;
-  grid-template-columns:repeat(auto-fit,minmax(220px,1fr));
-  gap:20px;
-  margin-top:20px;
-}
-
-.service-card{
-  background:white;
-  padding:20px;
-  border-radius:10px;
-  box-shadow:0 2px 8px rgba(0,0,0,0.1);
-}
-
-.book-btn{
-  margin-top:10px;
-  padding:8px 12px;
-  background:#2563eb;
+.dashboard-content h1{
+  font-size:36px;
+  font-weight:600;
+  margin-bottom:32px;
+  letter-spacing:0.5px;
   color:white;
-  border:none;
-  border-radius:6px;
-  cursor:pointer;
 }
 
-.bookings-grid{
-  display:grid;
-  grid-template-columns:repeat(auto-fit,minmax(250px,1fr));
-  gap:20px;
-  margin-top:20px;
-}
+/* ----------- BOOK SERVICE FORM ----------- */
 
-.booking-card{
-  background:white;
-  padding:20px;
-  border-radius:10px;
-  box-shadow:0 2px 8px rgba(0,0,0,0.1);
-}
-
-.status-tracker{
-  margin-top:10px;
-  font-weight:bold;
-}
-
-/* my Bookings */
 .booking-form{
+  background:rgba(255,255,255,0.10);
+  backdrop-filter:blur(14px);
+  border:1px solid rgba(255,255,255,0.12);
+  padding:36px;
+  border-radius:18px;
+  max-width:520px;
   display:flex;
   flex-direction:column;
-  max-width:400px;
-  gap:10px;
-  margin-top:20px;
+  gap:18px;
+  box-shadow:0 20px 40px rgba(0,0,0,0.4);
+}
+
+.booking-form label{
+  font-size:15px;
+  font-weight:500;
+  color:#cbd5e1;
 }
 
 .booking-form input,
 .booking-form select{
-  padding:8px;
-  border:1px solid #ccc;
-  border-radius:5px;
+  padding:14px;
+  border-radius:10px;
+  border:1px solid rgba(255,255,255,0.15);
+  background:rgba(15,23,42,0.6);
+  color:white;
+  font-size:15px;
+  transition:0.25s;
 }
+
+.booking-form input::placeholder{
+  color:#94a3b8;
+}
+
+.booking-form input:focus,
+.booking-form select:focus{
+  outline:none;
+  border-color:#3b82f6;
+  background:rgba(15,23,42,0.9);
+}
+
+/* ----------- PRIMARY BUTTON ----------- */
 
 .booking-form button{
-  padding:10px;
-  background:#2563eb;
-  color:white;
+  margin-top:16px;
+  padding:16px;
   border:none;
-  border-radius:6px;
-  cursor:pointer;
-}
-
-/* common sidebar item */
-
-.sidebar-item{
-  display:block;
-  padding:10px 12px;
-  border-radius:6px;
-  text-decoration:none;
+  border-radius:10px;
+  background:#3b82f6;
   color:white;
-  font-size:14px;
-  transition:all 0.2s ease;
+  font-size:16px;
+  font-weight:600;
+  cursor:pointer;
+  transition:all 0.25s ease;
 }
 
-/* Dashboard */
-
-.dashboard-link:hover{
-  background:#1d4ed8;
+.booking-form button:hover{
+  background:#2563eb;
+  transform:translateY(-2px);
+  box-shadow:0 10px 25px rgba(59,130,246,0.4);
 }
 
-/* Book Service */
+/* ----------- GRID LAYOUTS ----------- */
 
-.bookservice-link:hover{
-  background:#22c55e;
-}
-
-/* My Bookings */
-
-.bookings-link:hover{
-  background:#f59e0b;
-}
-
-/* Service Requests */
-
-.requests-link:hover{
-  background:#0ea5e9;
-}
-
-/* Active Jobs */
-
-.jobs-link:hover{
-  background:#8b5cf6;
-}
-
-/* Earnings */
-
-.earnings-link:hover{
-  background:#ec4899;
-}
-
-/* ---------- Active Jobs Grid ---------- */
-
-.jobs-grid{
+.bookings-grid,
+.jobs-grid,
+.requests-grid{
   display:grid;
-  grid-template-columns:repeat(auto-fit,minmax(260px,1fr));
-  gap:25px;
-  margin-top:20px;
-}
-.job-status{
-  margin-top:8px;
-  display:inline-block;
-  padding:4px 10px;
-  border-radius:20px;
-  font-size:12px;
-  background:#dbeafe;
-  color:#2563eb;
-}
-/* ---------- Job Card ---------- */
-
-.dashboard-card{
-  background:white;
-  padding:22px;
-  border-radius:12px;
-  box-shadow:0 3px 10px rgba(0,0,0,0.08);
-  transition:all 0.2s ease;
+  grid-template-columns:repeat(auto-fit,minmax(280px,1fr));
+  gap:24px;
+  margin-top:24px;
 }
 
-/* Hover effect */
+/* ----------- CARDS ----------- */
 
-.dashboard-card:hover{
-  transform:translateY(-4px);
-  box-shadow:0 6px 18px rgba(0,0,0,0.12);
+.dashboard-card,
+.booking-card{
+  background:rgba(255,255,255,0.08);
+  backdrop-filter:blur(10px);
+  padding:26px;
+  border-radius:16px;
+  border:1px solid rgba(255,255,255,0.1);
+  transition:all 0.25s ease;
+  box-shadow:0 12px 30px rgba(0,0,0,0.35);
 }
 
-/* Job Title */
+.dashboard-card:hover,
+.booking-card:hover{
+  transform:translateY(-6px);
+  background:rgba(255,255,255,0.12);
+}
 
 .dashboard-card h3{
-  font-size:18px;
-  margin-bottom:8px;
-  color:#111827;
+  margin-bottom:10px;
+  font-size:20px;
+  color:white;
 }
-
-/* Job text */
 
 .dashboard-card p{
-  margin-top:8px;
-  font-size:14px;
-  color:#4b5563;
+  font-size:15px;
+  color:#cbd5e1;
 }
 
-/* ---------- Job Status Badge ---------- */
+/* ----------- STATUS BADGES ----------- */
 
 .job-status{
   display:inline-block;
-  margin-top:10px;
-  padding:5px 10px;
+  margin-top:12px;
+  padding:7px 14px;
   border-radius:20px;
-  font-size:12px;
+  font-size:13px;
   font-weight:600;
-  background:#dbeafe;
-  color:#2563eb;
 }
 
-/* Different status colors */
-
 .status-progress{
-  background:#dbeafe;
-  color:#2563eb;
+  background:#3b82f6;
+  color:white;
 }
 
 .status-way{
-  background:#fef3c7;
-  color:#d97706;
+  background:#f59e0b;
+  color:white;
 }
 
 .status-complete{
-  background:#dcfce7;
-  color:#16a34a;
+  background:#22c55e;
+  color:white;
 }
 
-/* Service Requests Grid */
-
-.requests-grid{
-  display:grid;
-  grid-template-columns:repeat(auto-fit,minmax(250px,1fr));
-  gap:20px;
-  margin-top:20px;
-}
-
-/* Buttons container */
+/* ----------- SERVICE REQUEST BUTTONS ----------- */
 
 .request-actions{
-  margin-top:12px;
+  margin-top:14px;
   display:flex;
-  gap:10px;
+  gap:12px;
 }
-
-/* Accept Button */
 
 .accept-btn{
-  padding:8px 12px;
+  padding:10px 16px;
   border:none;
-  border-radius:6px;
-  background:#16a34a;
+  border-radius:8px;
+  background:#22c55e;
   color:white;
+  font-weight:600;
   cursor:pointer;
+  transition:0.2s;
 }
-
-/* Reject Button */
-
-.reject-btn{
-  padding:8px 12px;
-  border:none;
-  border-radius:6px;
-  background:#dc2626;
-  color:white;
-  cursor:pointer;
-}
-
-/* Hover effects */
 
 .accept-btn:hover{
-  background:#15803d;
+  background:#16a34a;
+}
+
+.reject-btn{
+  padding:10px 16px;
+  border:none;
+  border-radius:8px;
+  background:#ef4444;
+  color:white;
+  font-weight:600;
+  cursor:pointer;
+  transition:0.2s;
 }
 
 .reject-btn:hover{
-  background:#b91c1c;
+  background:#dc2626;
+}
+
+--------------------------
+
+/* SERVICES GRID */
+
+.services-grid{
+  display:grid;
+  grid-template-columns:repeat(auto-fit,minmax(320px,1fr));
+  gap:24px;
+  margin-top:20px;
+}
+
+/* SERVICE REQUEST CARD */
+
+.service-card{
+  background:rgba(255,255,255,0.10);
+  backdrop-filter:blur(10px);
+  padding:24px;
+  border-radius:14px;
+  border:1px solid rgba(255,255,255,0.08);
+  box-shadow:0 12px 25px rgba(0,0,0,0.35);
+  transition:all 0.25s ease;
+}
+
+.service-card:hover{
+  transform:translateY(-4px);
+  background:rgba(255,255,255,0.14);
+}
+
+/* SERVICE TITLE */
+
+.service-card h3{
+  font-size:20px;
+  margin-bottom:10px;
+  color:#60a5fa;
+}
+
+/* TEXT */
+
+.service-card p{
+  font-size:15px;
+  color:#cbd5e1;
+  margin:6px 0;
+}
+
+/* ACCEPT BUTTON */
+
+.service-card .book-btn{
+  margin-top:10px;
+  margin-right:10px;
+  padding:8px 16px;
+  border:none;
+  border-radius:6px;
+  background:#22c55e;
+  color:white;
+  cursor:pointer;
+}
+
+.service-card .book-btn:last-child{
+  background:#ef4444;
 }
