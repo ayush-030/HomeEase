@@ -3,6 +3,7 @@ import API from "../services/api"
 import ProviderCard from "../components/ProviderCard"
 import Navbar from "../components/Navbar"
 import ServiceCategories from "../components/ServiceCategories"
+import ProviderMap from "../components/ProviderMap"
 
 export default function CustomerDashboard() {
 
@@ -10,6 +11,7 @@ export default function CustomerDashboard() {
   const [category, setCategory] = useState(2)
 
   const searchProviders = async () => {
+
     try {
 
       const res = await API.get(
@@ -19,8 +21,11 @@ export default function CustomerDashboard() {
       setProviders(res.data)
 
     } catch (error) {
-      console.error(error)
+
+      console.error("Error fetching providers:", error)
+
     }
+
   }
 
   return (
@@ -31,8 +36,8 @@ export default function CustomerDashboard() {
 
       <div className="max-w-6xl mx-auto px-6 py-12">
 
-        {/* HERO SECTION */}
-        <ServiceCategories setCategory={setCategory} />
+        {/* HERO */}
+
         <div className="text-center mb-12">
 
           <h1 className="text-5xl font-bold text-gray-800 mb-4">
@@ -46,45 +51,54 @@ export default function CustomerDashboard() {
         </div>
 
 
-        {/* SEARCH SECTION */}
+        {/* SERVICE CATEGORIES */}
 
-        <div className="flex justify-center gap-4 mb-12">
+        <ServiceCategories setCategory={setCategory} />
 
-          <select
-            className="p-3 rounded-lg border border-gray-300 bg-white"
-            value={category}
-            onChange={(e) => setCategory(e.target.value)}
-          >
 
-            <option value="1">Plumbing</option>
-            <option value="2">Electrical</option>
-            <option value="3">Cleaning</option>
-            <option value="4">Carpentry</option>
+        {/* SEARCH BUTTON */}
 
-          </select>
+        <div className="flex justify-center mb-10">
 
           <button
             onClick={searchProviders}
-            className="bg-blue-600 hover:bg-blue-700 text-white px-6 py-3 rounded-lg"
+            className="bg-blue-600 hover:bg-blue-700 text-white px-8 py-3 rounded-lg"
           >
-            Search
+            Find Providers
           </button>
 
         </div>
 
 
-        {/* PROVIDERS */}
+        {/* MAP VIEW */}
+
+        {providers.length > 0 && (
+
+          <div className="mb-12">
+
+            <ProviderMap providers={providers} />
+
+          </div>
+
+        )}
+
+
+        {/* PROVIDER CARDS */}
 
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
 
           {providers.length === 0 ? (
+
             <p className="text-gray-500 text-center col-span-3">
-              Click search to find nearby providers
+              Click "Find Providers" to see nearby services
             </p>
+
           ) : (
+
             providers.map((p) => (
               <ProviderCard key={p.provider_id} provider={p} />
             ))
+
           )}
 
         </div>
@@ -92,6 +106,5 @@ export default function CustomerDashboard() {
       </div>
 
     </div>
-
   )
 }

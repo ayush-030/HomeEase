@@ -5,8 +5,11 @@ from models.review import Review
 
 provider_bp = Blueprint("provider", __name__)
 
+
+# CREATE PROVIDER PROFILE
 @provider_bp.route("/create-profile", methods=["POST"])
 def create_provider_profile():
+
     data = request.get_json()
 
     user_id = data.get("user_id")
@@ -31,6 +34,8 @@ def create_provider_profile():
 
     return jsonify({"message": "Provider profile created (pending admin approval)"})
 
+
+# SEARCH PROVIDERS
 @provider_bp.route("/search", methods=["GET"])
 def search_providers():
 
@@ -44,18 +49,23 @@ def search_providers():
 
     for provider in providers:
 
-        distance = ((provider.latitude - latitude)**2 + (provider.longitude - longitude)**2) ** 0.5
+        distance = ((provider.latitude - latitude)**2 +
+                    (provider.longitude - longitude)**2) ** 0.5
 
-        if distance <= 0.1:   # basic radius filtering
+        if distance <= 0.1:
 
             results.append({
                 "provider_id": provider.id,
                 "bio": provider.bio,
-                "experience": provider.experience_years
+                "experience": provider.experience_years,
+                "latitude": provider.latitude,
+                "longitude": provider.longitude
             })
 
     return jsonify(results)
 
+
+# PROVIDER RATINGS
 @provider_bp.route("/ratings/<provider_id>", methods=["GET"])
 def get_provider_rating(provider_id):
 
