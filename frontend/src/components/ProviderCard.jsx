@@ -10,9 +10,16 @@ export default function ProviderCard({ provider }) {
 
   const fetchRating = async () => {
 
-    const res = await API.get(`/provider/ratings/${provider.provider_id}`)
+    try {
 
-    setRating(res.data)
+      const res = await API.get(`/provider/ratings/${provider.provider_id}`)
+      setRating(res.data)
+
+    } catch (error) {
+
+      console.error("Rating fetch failed", error)
+
+    }
 
   }
 
@@ -32,30 +39,32 @@ export default function ProviderCard({ provider }) {
         {provider.bio}
       </p>
 
-      <p className="text-sm text-gray-500 mb-3">
+      <p className="text-sm text-gray-500 mb-2">
         Experience: {provider.experience} years
       </p>
 
-      <div className="flex items-center gap-2 mb-4 text-yellow-500">
+      {/* Rating Section */}
 
-        <FaStar />
+      <div className="flex items-center gap-2 mb-4">
 
-        <span className="text-gray-700 font-medium">
-          {rating.average}
-        </span>
+        <FaStar className="text-yellow-500" />
 
-        <span className="text-gray-500 text-sm">
-          ({rating.count} reviews)
-        </span>
+        <p className="text-sm text-gray-700 font-medium">
+          {rating.average} ({rating.count} reviews)
+        </p>
 
       </div>
 
+      {/* Booking Button */}
+
       <button
         onClick={() => setShowModal(true)}
-        className="bg-green-600 text-white px-4 py-2 rounded-lg"
+        className="bg-green-600 text-white px-4 py-2 rounded-lg hover:bg-green-700"
       >
         Book Service
       </button>
+
+      {/* Booking Modal */}
 
       {showModal && (
         <BookingModal

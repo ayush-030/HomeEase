@@ -5,6 +5,7 @@ import Signup from "./pages/Signup"
 import CustomerDashboard from "./pages/CustomerDashboard"
 import ProviderDashboard from "./pages/ProviderDashboard"
 import AdminDashboard from "./pages/AdminDashboard"
+import ProviderProfileForm from "./pages/ProviderProfileForm"
 
 function App() {
 
@@ -19,6 +20,7 @@ function App() {
         <Route path="/customer" element={<CustomerDashboard />} />
         <Route path="/provider" element={<ProviderDashboard />} />
         <Route path="/admin" element={<AdminDashboard />} />
+        <Route path="/provider-profile" element={<ProviderProfileForm />} />
 
       </Routes>
 

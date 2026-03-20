@@ -16,19 +16,27 @@ export default function Signup() {
 
     try {
 
-      await API.post("/auth/register", {
+      const res = await API.post("/auth/register", {
         email: email,
         full_name: name,
         phone: phone,
         role: role
       })
 
+      // Save user in localStorage
+      localStorage.setItem("user", JSON.stringify(res.data.user))
+
       alert("Registration successful")
 
-      navigate("/login")
+      if (role === "PROVIDER") {
+        navigate("/provider-profile")
+      } else {
+        navigate("/login")
+      }
 
     } catch (error) {
 
+      console.error(error)
       alert("Registration failed")
 
     }
@@ -74,10 +82,8 @@ export default function Signup() {
             className="border p-3 rounded w-full mb-6"
             onChange={(e) => setRole(e.target.value)}
           >
-
             <option value="CUSTOMER">Customer</option>
             <option value="PROVIDER">Service Provider</option>
-
           </select>
 
           <button
@@ -92,6 +98,5 @@ export default function Signup() {
       </div>
 
     </div>
-
   )
 }

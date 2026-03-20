@@ -17,25 +17,39 @@ def create_provider_profile():
     experience_years = data.get("experience_years")
     latitude = data.get("latitude")
     longitude = data.get("longitude")
+    service_radius_km = data.get("service_radius_km", 5)
 
     if not user_id:
         return jsonify({"error": "user_id required"}), 400
 
-    profile = ProviderProfile(
-        user_id=user_id,
-        bio=bio,
-        experience_years=experience_years,
-        latitude=latitude,
-        longitude=longitude
-    )
+    try:
 
-    db.session.add(profile)
-    db.session.commit()
+        profile = ProviderProfile(
+            user_id=user_id,
+            bio=bio,
+            experience_years=experience_years,
+            latitude=latitude,
+            longitude=longitude,
+            service_radius_km=service_radius_km
+        )
 
-    return jsonify({"message": "Provider profile created (pending admin approval)"})
+        db.session.add(profile)
+        db.session.commit()
+
+        return jsonify({
+            "message": "Provider profile created (pending admin approval)"
+        })
+
+    except Exception as e:
+
+        db.session.rollback()
+
+        return jsonify({
+            "error": str(e)
+        }), 500
 
 
-# SEARCH PROVIDERS
+# SEARCH PROVIDERS WITH SMART RANKING
 @provider_bp.route("/search", methods=["GET"])
 def search_providers():
 
@@ -45,24 +59,48 @@ def search_providers():
 
     providers = ProviderProfile.query.filter_by(is_approved=True).all()
 
-    results = []
+    ranked = []
 
     for provider in providers:
 
         distance = ((provider.latitude - latitude)**2 +
                     (provider.longitude - longitude)**2) ** 0.5
 
-        if distance <= 0.1:
+        if distance > 0.1:
+            continue
 
-            results.append({
-                "provider_id": provider.id,
-                "bio": provider.bio,
-                "experience": provider.experience_years,
-                "latitude": provider.latitude,
-                "longitude": provider.longitude
-            })
+        reviews = Review.query.filter_by(provider_id=provider.id).all()
 
-    return jsonify(results)
+        review_count = len(reviews)
+
+        avg_rating = 0
+
+        if review_count > 0:
+            avg_rating = sum(r.rating for r in reviews) / review_count
+
+        experience = provider.experience_years or 0
+
+        score = (
+            0.5 * avg_rating +
+            0.2 * experience +
+            0.2 * review_count -
+            0.1 * distance
+        )
+
+        ranked.append({
+            "provider_id": provider.id,
+            "bio": provider.bio,
+            "experience": experience,
+            "latitude": provider.latitude,
+            "longitude": provider.longitude,
+            "rating": round(avg_rating, 1),
+            "reviews": review_count,
+            "score": score
+        })
+
+    ranked.sort(key=lambda x: x["score"], reverse=True)
+
+    return jsonify(ranked)
 
 
 # PROVIDER RATINGS

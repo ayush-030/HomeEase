@@ -3,6 +3,7 @@ from models.user import db, User
 
 auth_bp = Blueprint("auth", __name__)
 
+
 @auth_bp.route("/register", methods=["POST"])
 def register_user():
     data = request.get_json()
@@ -29,7 +30,15 @@ def register_user():
     db.session.add(new_user)
     db.session.commit()
 
-    return jsonify({"message": "User registered successfully"})
+    return jsonify({
+        "message": "User registered successfully",
+        "user": {
+            "id": new_user.id,
+            "email": new_user.email,
+            "role": new_user.role
+        }
+    })
+
 
 @auth_bp.route("/users", methods=["GET"])
 def get_users():
