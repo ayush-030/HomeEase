@@ -53,6 +53,10 @@ export default function ProviderCard({ provider }) {
           {rating.average} ({rating.count} reviews)
         </p>
 
+        <p className="text-sm text-gray-500 mb-3">
+          📍{provider.distance} km away
+        </p>
+
       </div>
 
       {/* Booking Button */}

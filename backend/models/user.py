@@ -15,7 +15,7 @@ class User(db.Model):
         db.Enum("CUSTOMER", "PROVIDER", "ADMIN", name="user_roles"),
         nullable=False
     )
-
+    password = db.Column(db.String, nullable=False)
     status = db.Column(
         db.Enum("ACTIVE", "PENDING", "BLOCKED", name="user_status"),
         default="ACTIVE"

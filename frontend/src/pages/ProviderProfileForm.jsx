@@ -45,11 +45,14 @@ export default function ProviderProfileForm() {
 
     } catch (error) {
 
-      console.error(error)
+        console.error(error)
 
-      alert("Profile creation failed")
-
-    }
+        if (error.response?.data?.error) {
+          alert(error.response.data.error)
+        } else {
+          alert("Profile creation failed")
+        }
+      }
 
   }
 

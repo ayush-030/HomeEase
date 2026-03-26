@@ -1,30 +1,38 @@
 from flask import Blueprint, request, jsonify
 from models.user import db, User
+import bcrypt
 
 auth_bp = Blueprint("auth", __name__)
 
 
+# ---------------- REGISTER ----------------
 @auth_bp.route("/register", methods=["POST"])
 def register_user():
+
     data = request.get_json()
 
-    email = data.get("email")
+    email = data.get("email").strip().lower()
     full_name = data.get("full_name")
     phone = data.get("phone")
     role = data.get("role")
+    password = data.get("password")
 
-    if not email or not role:
-        return jsonify({"error": "Email and role required"}), 400
+    if not email or not role or not password:
+        return jsonify({"error": "Email, role, and password required"}), 400
 
     existing_user = User.query.filter_by(email=email).first()
     if existing_user:
         return jsonify({"error": "User already exists"}), 400
 
+    # 🔐 Hash password
+    hashed_password = bcrypt.hashpw(password.encode("utf-8"), bcrypt.gensalt())
+
     new_user = User(
         email=email,
         full_name=full_name,
         phone=phone,
-        role=role
+        role=role,
+        password=hashed_password.decode("utf-8")
     )
 
     db.session.add(new_user)
@@ -40,18 +48,31 @@ def register_user():
     })
 
 
-@auth_bp.route("/users", methods=["GET"])
-def get_users():
+# ---------------- LOGIN ----------------
+@auth_bp.route("/login", methods=["POST"])
+def login_user():
 
-    users = User.query.all()
+    data = request.get_json()
 
-    result = []
+    email = data.get("email").strip().lower()
+    password = data.get("password")
 
-    for u in users:
-        result.append({
-            "id": u.id,
-            "email": u.email,
-            "role": u.role
-        })
+    from models.user import db, User
+    import bcrypt
 
-    return jsonify(result)
+    user = User.query.filter(db.func.lower(User.email) == email).first()
+
+    if not user:
+        return jsonify({"error": "User not found"}), 404
+
+    if not bcrypt.checkpw(password.encode("utf-8"), user.password.encode("utf-8")):
+        return jsonify({"error": "Invalid password"}), 401
+
+    return jsonify({
+        "message": "Login successful",
+        "user": {
+            "id": user.id,
+            "email": user.email,
+            "role": user.role
+        }
+    })

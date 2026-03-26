@@ -10,6 +10,7 @@ export default function Signup() {
   const [email, setEmail] = useState("")
   const [name, setName] = useState("")
   const [phone, setPhone] = useState("")
+  const [password, setPassword] = useState("")
   const [role, setRole] = useState("CUSTOMER")
 
   const register = async () => {
@@ -17,16 +18,16 @@ export default function Signup() {
     try {
 
       const res = await API.post("/auth/register", {
-        email: email,
+        email,
         full_name: name,
-        phone: phone,
-        role: role
+        phone,
+        role,
+        password
       })
 
-      // Save user in localStorage
       localStorage.setItem("user", JSON.stringify(res.data.user))
 
-      alert("Registration successful")
+      alert("Account created successfully 🎉")
 
       if (role === "PROVIDER") {
         navigate("/provider-profile")
@@ -36,8 +37,7 @@ export default function Signup() {
 
     } catch (error) {
 
-      console.error(error)
-      alert("Registration failed")
+      alert(error.response?.data?.error || "Registration failed")
 
     }
 
@@ -45,41 +45,48 @@ export default function Signup() {
 
   return (
 
-    <div className="min-h-screen bg-gray-100">
+    <div className="min-h-screen bg-gradient-to-br from-blue-100 to-blue-200">
 
       <Navbar />
 
-      <div className="flex justify-center items-center mt-20">
+      <div className="flex justify-center items-center mt-16">
 
-        <div className="bg-white p-10 rounded-xl shadow w-96">
+        <div className="bg-white p-10 rounded-2xl shadow-xl w-96">
 
-          <h2 className="text-2xl font-bold mb-6">
+          <h2 className="text-3xl font-bold text-center mb-6 text-blue-600">
             Create Account
           </h2>
 
           <input
             type="text"
             placeholder="Full Name"
-            className="border p-3 rounded w-full mb-4"
+            className="border p-3 rounded-lg w-full mb-4 focus:ring-2 focus:ring-blue-400 outline-none"
             onChange={(e) => setName(e.target.value)}
           />
 
           <input
             type="email"
             placeholder="Email"
-            className="border p-3 rounded w-full mb-4"
+            className="border p-3 rounded-lg w-full mb-4 focus:ring-2 focus:ring-blue-400 outline-none"
             onChange={(e) => setEmail(e.target.value)}
           />
 
           <input
             type="text"
             placeholder="Phone"
-            className="border p-3 rounded w-full mb-4"
+            className="border p-3 rounded-lg w-full mb-4 focus:ring-2 focus:ring-blue-400 outline-none"
             onChange={(e) => setPhone(e.target.value)}
           />
 
+          <input
+            type="password"
+            placeholder="Password"
+            className="border p-3 rounded-lg w-full mb-4 focus:ring-2 focus:ring-blue-400 outline-none"
+            onChange={(e) => setPassword(e.target.value)}
+          />
+
           <select
-            className="border p-3 rounded w-full mb-6"
+            className="border p-3 rounded-lg w-full mb-6 focus:ring-2 focus:ring-blue-400 outline-none"
             onChange={(e) => setRole(e.target.value)}
           >
             <option value="CUSTOMER">Customer</option>
@@ -88,10 +95,20 @@ export default function Signup() {
 
           <button
             onClick={register}
-            className="bg-blue-600 text-white w-full py-3 rounded hover:bg-blue-700"
+            className="bg-blue-600 hover:bg-blue-700 text-white w-full py-3 rounded-lg font-semibold transition"
           >
             Sign Up
           </button>
+
+          <p className="text-sm text-center mt-4 text-gray-500">
+            Already have an account?{" "}
+            <span
+              onClick={() => navigate("/login")}
+              className="text-blue-600 cursor-pointer"
+            >
+              Login
+            </span>
+          </p>
 
         </div>
 

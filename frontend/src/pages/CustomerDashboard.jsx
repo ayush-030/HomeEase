@@ -1,4 +1,4 @@
-import { useState } from "react"
+import { useEffect, useState } from "react"
 import API from "../services/api"
 import ProviderCard from "../components/ProviderCard"
 import Navbar from "../components/Navbar"
@@ -9,13 +9,49 @@ export default function CustomerDashboard() {
 
   const [providers, setProviders] = useState([])
   const [category, setCategory] = useState(2)
+  const [location, setLocation] = useState(null)
 
+  // 📍 Detect user location
+  const getLocation = () => {
+
+    if (!navigator.geolocation) {
+      alert("Geolocation not supported")
+      return
+    }
+
+    navigator.geolocation.getCurrentPosition(
+
+      (position) => {
+        setLocation({
+          latitude: position.coords.latitude,
+          longitude: position.coords.longitude
+        })
+      },
+
+      (error) => {
+        console.error(error)
+        alert("Location access denied")
+      }
+
+    )
+  }
+
+  useEffect(() => {
+    getLocation()
+  }, [])
+
+  // 🔍 Search providers
   const searchProviders = async () => {
 
     try {
 
+      if (!location) {
+        alert("Detecting your location...")
+        return
+      }
+
       const res = await API.get(
-        `/provider/search?latitude=28.6139&longitude=77.2090&category_id=${category}`
+        `/provider/search?latitude=${location.latitude}&longitude=${location.longitude}&category_id=${category}`
       )
 
       setProviders(res.data)
@@ -50,11 +86,17 @@ export default function CustomerDashboard() {
 
         </div>
 
+        {/* LOCATION STATUS */}
+
+        {!location && (
+          <p className="text-center text-gray-500 mb-6">
+            Detecting your location...
+          </p>
+        )}
 
         {/* SERVICE CATEGORIES */}
 
         <ServiceCategories setCategory={setCategory} />
-
 
         {/* SEARCH BUTTON */}
 
@@ -69,21 +111,15 @@ export default function CustomerDashboard() {
 
         </div>
 
-
-        {/* MAP VIEW */}
+        {/* MAP */}
 
         {providers.length > 0 && (
-
           <div className="mb-12">
-
             <ProviderMap providers={providers} />
-
           </div>
-
         )}
 
-
-        {/* PROVIDER CARDS */}
+        {/* PROVIDERS */}
 
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
 

@@ -1,78 +1,188 @@
 import { useEffect, useState } from "react"
 import API from "../services/api"
+import Navbar from "../components/Navbar"
 
 export default function ProviderDashboard() {
 
   const [bookings, setBookings] = useState([])
+  const [status, setStatus] = useState("")
 
-  const providerId = "ad174c91-e64f-49ce-9b0b-30cf29ff3762"
+  const user = JSON.parse(localStorage.getItem("user"))
 
   const fetchBookings = async () => {
 
-    const res = await API.get(`/booking/provider/${providerId}`)
-    setBookings(res.data)
+    try {
+
+      const res = await API.get(`/booking/provider/${user.id}`)
+      setBookings(res.data)
+
+    } catch (error) {
+
+      console.error("Error fetching bookings:", error)
+
+    }
+
+  }
+
+  const checkStatus = async () => {
+
+    try {
+
+      const res = await API.get(`/provider/status/${user.id}`)
+      setStatus(res.data.status)
+
+    } catch (error) {
+
+      console.error("Error checking status:", error)
+
+    }
 
   }
 
   const updateStatus = async (id, status) => {
 
-    await API.put(`/booking/update-status/${id}`, { status })
-    fetchBookings()
+    try {
+
+      await API.put(`/booking/update-status/${id}`, { status })
+      fetchBookings()
+
+    } catch (error) {
+
+      console.error("Error updating booking:", error)
+
+    }
 
   }
 
   useEffect(() => {
-    fetchBookings()
+
+    checkStatus()
+
   }, [])
 
+  useEffect(() => {
+
+    if (status === "APPROVED") {
+      fetchBookings()
+    }
+
+  }, [status])
+
+  // ⛔ Waiting for approval screen
+  if (status === "PENDING") {
+    return (
+      <div className="min-h-screen bg-gray-100">
+        <Navbar />
+
+        <div className="flex flex-col items-center justify-center mt-40">
+
+          <h2 className="text-3xl font-semibold mb-4">
+            Waiting for Admin Approval
+          </h2>
+
+          <p className="text-gray-500">
+            Your provider profile is under review.
+          </p>
+
+        </div>
+
+      </div>
+    )
+  }
+
+  // ⛔ No profile created
+  if (status === "NOT_CREATED") {
+    return (
+      <div className="min-h-screen bg-gray-100">
+        <Navbar />
+
+        <div className="flex flex-col items-center justify-center mt-40">
+
+          <h2 className="text-3xl font-semibold mb-4">
+            No Provider Profile Found
+          </h2>
+
+          <p className="text-gray-500 mb-6">
+            Please create your provider profile first.
+          </p>
+
+          <button
+            onClick={() => window.location.href = "/provider-profile"}
+            className="bg-blue-600 text-white px-6 py-3 rounded"
+          >
+            Create Profile
+          </button>
+
+        </div>
+
+      </div>
+    )
+  }
+
+  // ✅ Approved dashboard
   return (
 
-    <div className="min-h-screen bg-gray-100 p-10">
+    <div className="min-h-screen bg-gray-100">
 
-      <h1 className="text-3xl font-bold mb-8">
-        Provider Dashboard
-      </h1>
+      <Navbar />
 
-      <div className="grid gap-6">
+      <div className="max-w-6xl mx-auto p-10">
 
-        {bookings.map((b) => (
+        <h1 className="text-3xl font-bold mb-8">
+          Provider Dashboard
+        </h1>
 
-          <div key={b.id} className="bg-white p-6 rounded-xl shadow">
+        <div className="grid gap-6">
 
-            <p>Customer: {b.customer_id}</p>
-            <p>Date: {b.date}</p>
-            <p>Time: {b.time}</p>
-            <p>Status: {b.status}</p>
+          {bookings.length === 0 ? (
 
-            {b.status === "PENDING" && (
+            <p className="text-gray-500">
+              No bookings yet.
+            </p>
 
-              <div className="flex gap-4 mt-4">
+          ) : (
 
-                <button
-                  onClick={() => updateStatus(b.id, "ACCEPTED")}
-                  className="bg-green-600 text-white px-4 py-2 rounded"
-                >
-                  Accept
-                </button>
+            bookings.map((b) => (
 
-                <button
-                  onClick={() => updateStatus(b.id, "REJECTED")}
-                  className="bg-red-600 text-white px-4 py-2 rounded"
-                >
-                  Reject
-                </button>
+              <div key={b.id} className="bg-white p-6 rounded-xl shadow">
+
+                <p><strong>Customer:</strong> {b.customer_id}</p>
+                <p><strong>Date:</strong> {b.date}</p>
+                <p><strong>Time:</strong> {b.time}</p>
+                <p><strong>Status:</strong> {b.status}</p>
+
+                {b.status === "PENDING" && (
+
+                  <div className="flex gap-4 mt-4">
+
+                    <button
+                      onClick={() => updateStatus(b.id, "ACCEPTED")}
+                      className="bg-green-600 text-white px-4 py-2 rounded"
+                    >
+                      Accept
+                    </button>
+
+                    <button
+                      onClick={() => updateStatus(b.id, "REJECTED")}
+                      className="bg-red-600 text-white px-4 py-2 rounded"
+                    >
+                      Reject
+                    </button>
+
+                  </div>
+
+                )}
 
               </div>
 
-            )}
+            ))
 
-          </div>
+          )}
 
-        ))}
+        </div>
 
       </div>
 
     </div>
-
   )
 }
