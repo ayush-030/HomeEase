@@ -3,6 +3,7 @@ from models.user import db
 from models.provider_profile import ProviderProfile
 from models.review import Review
 import math
+from models.user import User
 
 provider_bp = Blueprint("provider", __name__)
 
@@ -165,4 +166,25 @@ def get_provider_rating(provider_id):
     return jsonify({
         "average": round(avg, 1),
         "count": len(reviews)
+    })
+
+@provider_bp.route("/details/<provider_id>", methods=["GET"])
+def provider_details(provider_id):
+
+    provider = ProviderProfile.query.get(provider_id)
+    user = User.query.get(provider.user_id)
+
+    reviews = Review.query.filter_by(provider_id=provider.id).all()
+
+    avg = 0
+    if len(reviews) > 0:
+        avg = sum(r.rating for r in reviews) / len(reviews)
+
+    return jsonify({
+        "name": user.full_name,
+        "bio": provider.bio,
+        "experience": provider.experience_years,
+        "rating": round(avg, 1),
+        "reviews": len(reviews),
+        "phone": user.phone
     })

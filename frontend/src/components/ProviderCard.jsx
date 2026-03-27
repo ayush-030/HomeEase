@@ -1,83 +1,35 @@
-import { useEffect, useState } from "react"
-import { FaStar } from "react-icons/fa"
-import BookingModal from "./BookingModal"
-import API from "../services/api"
+import { useNavigate } from "react-router-dom"
 
 export default function ProviderCard({ provider }) {
 
-  const [showModal, setShowModal] = useState(false)
-  const [rating, setRating] = useState({ average: 0, count: 0 })
-
-  const fetchRating = async () => {
-
-    try {
-
-      const res = await API.get(`/provider/ratings/${provider.provider_id}`)
-      setRating(res.data)
-
-    } catch (error) {
-
-      console.error("Rating fetch failed", error)
-
-    }
-
-  }
-
-  useEffect(() => {
-    fetchRating()
-  }, [])
+  const navigate = useNavigate()
 
   return (
+    <div className="bg-white p-6 rounded-xl shadow hover:shadow-lg transition">
 
-    <div className="bg-white rounded-xl shadow-md p-6 hover:shadow-xl transition">
+      <h3 className="text-xl font-bold mb-1">
+        {provider.name}
+      </h3>
 
-      <h2 className="text-xl font-semibold mb-2">
-        Service Provider
-      </h2>
-
-      <p className="text-gray-600 mb-2">
+      <p className="text-gray-500 mb-3">
         {provider.bio}
       </p>
 
-      <p className="text-sm text-gray-500 mb-2">
-        Experience: {provider.experience} years
+      <p className="text-sm text-gray-600">
+        ⭐ {provider.rating} ({provider.reviews} reviews)
       </p>
 
-      {/* Rating Section */}
-
-      <div className="flex items-center gap-2 mb-4">
-
-        <FaStar className="text-yellow-500" />
-
-        <p className="text-sm text-gray-700 font-medium">
-          {rating.average} ({rating.count} reviews)
-        </p>
-
-        <p className="text-sm text-gray-500 mb-3">
-          📍{provider.distance} km away
-        </p>
-
-      </div>
-
-      {/* Booking Button */}
+      <p className="text-sm text-gray-500 mb-4">
+        📍 {provider.distance} km away
+      </p>
 
       <button
-        onClick={() => setShowModal(true)}
-        className="bg-green-600 text-white px-4 py-2 rounded-lg hover:bg-green-700"
+        onClick={() => navigate(`/provider/${provider.provider_id}`)}
+        className="bg-blue-600 text-white px-4 py-2 rounded w-full hover:bg-blue-700"
       >
-        Book Service
+        View Profile
       </button>
 
-      {/* Booking Modal */}
-
-      {showModal && (
-        <BookingModal
-          providerId={provider.provider_id}
-          closeModal={() => setShowModal(false)}
-        />
-      )}
-
     </div>
-
   )
 }
