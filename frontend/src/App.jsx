@@ -8,6 +8,7 @@ import AdminDashboard from "./pages/AdminDashboard"
 import ProviderProfileForm from "./pages/ProviderProfileForm"
 import ProviderProfile from "./pages/ProviderProfile"
 import BookService from "./pages/BookService"
+import CustomerBookings from "./pages/CustomerBookings"
 
 function App() {
 
@@ -25,6 +26,7 @@ function App() {
         <Route path="/provider-profile" element={<ProviderProfileForm />} />
         <Route path="/provider/:id" element={<ProviderProfile />} />
         <Route path="/book/:id" element={<BookService />} />
+        <Route path="/my-bookings" element={<CustomerBookings />} />
       </Routes>
 
     </BrowserRouter>

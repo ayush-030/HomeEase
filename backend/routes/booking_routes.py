@@ -85,3 +85,28 @@ def update_booking_status(booking_id):
     db.session.commit()
 
     return jsonify({"message": "Booking status updated"})
+
+@booking_bp.route("/customer/<customer_id>", methods=["GET"])
+def get_customer_bookings(customer_id):
+
+    bookings = Booking.query.filter_by(customer_id=customer_id).all()
+
+    result = []
+
+    for b in bookings:
+
+        provider = ProviderProfile.query.get(b.provider_id)
+        user = User.query.get(provider.user_id) if provider else None
+
+        # Check if review exists
+        review = Review.query.filter_by(booking_id=b.id).first()
+
+        result.append({
+            "id": b.id,
+            "provider_name": user.full_name if user else "Unknown",
+            "date": str(b.booking_date),
+            "status": b.status,
+            "review_given": True if review else False
+        })
+
+    return jsonify(result)

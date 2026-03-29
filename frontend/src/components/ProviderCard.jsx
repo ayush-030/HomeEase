@@ -16,7 +16,7 @@ export default function ProviderCard({ provider }) {
       </p>
 
       <p className="text-sm text-gray-600">
-        ⭐ {provider.rating} ({provider.reviews} reviews)
+        ⭐ {provider.rating || 0} ({provider.reviews || 0} reviews)
       </p>
 
       <p className="text-sm text-gray-500 mb-4">

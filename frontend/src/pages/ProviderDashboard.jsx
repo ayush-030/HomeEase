@@ -192,21 +192,28 @@ export default function ProviderDashboard() {
                     </p>
 
                     <p>📞 {b.customer_phone}</p>
-                    
+                    <br />
                     {/* WhatsApp Button */}
                     
                     <a
-                      href={`https://wa.me/91${b.customer_phone?.replace(/\D/g, "")}`}
+                      href={`https://wa.me/91${b.customer_phone?.replace(/\D/g, "")}?text=${encodeURIComponent(
+                        "Hello, I accepted your booking on HomeEase. Let's connect!"
+                      )}`}
                       target="_blank"
                       rel="noopener noreferrer"
                       className="bg-green-600 text-white px-4 py-2 rounded hover:bg-green-700 inline-block"
                     >
                       💬 Chat on WhatsApp
-                      </a>
+                    </a>
+                    <br />
+                    <button
+                      onClick={() => updateStatus(b.id, "COMPLETED")}
+                      className="bg-blue-600 text-white px-4 py-2 rounded mt-3"
+                    >
+                      Mark as Completed
+                    </button>
 
                   </div>
-
-
 
                 )}
 

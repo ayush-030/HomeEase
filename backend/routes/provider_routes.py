@@ -152,39 +152,56 @@ def search_providers():
 @provider_bp.route("/ratings/<provider_id>", methods=["GET"])
 def get_provider_rating(provider_id):
 
+    # Get all reviews for this provider
     reviews = Review.query.filter_by(provider_id=provider_id).all()
 
-    if len(reviews) == 0:
+    # No reviews case
+    if not reviews:
         return jsonify({
             "average": 0,
             "count": 0
         })
 
-    total = sum(r.rating for r in reviews)
-    avg = total / len(reviews)
+    # Calculate average
+    total = sum(r.rating for r in reviews if r.rating is not None)
+    count = len(reviews)
+
+    avg = total / count if count > 0 else 0
 
     return jsonify({
         "average": round(avg, 1),
-        "count": len(reviews)
+        "count": count
     })
 
+
+# -----------------------------
+# PROVIDER DETAILS (WITH RATING)
+# -----------------------------
 @provider_bp.route("/details/<provider_id>", methods=["GET"])
 def provider_details(provider_id):
 
     provider = ProviderProfile.query.get(provider_id)
+
+    if not provider:
+        return jsonify({"error": "Provider not found"}), 404
+
     user = User.query.get(provider.user_id)
 
+    # Get reviews
     reviews = Review.query.filter_by(provider_id=provider.id).all()
 
     avg = 0
-    if len(reviews) > 0:
-        avg = sum(r.rating for r in reviews) / len(reviews)
+    count = len(reviews)
+
+    if count > 0:
+        total = sum(r.rating for r in reviews if r.rating is not None)
+        avg = total / count
 
     return jsonify({
-        "name": user.full_name,
+        "name": user.full_name if user else "Unknown",
         "bio": provider.bio,
         "experience": provider.experience_years,
         "rating": round(avg, 1),
-        "reviews": len(reviews),
-        "phone": user.phone
+        "reviews": count,
+        "phone": user.phone if user else "N/A"
     })
