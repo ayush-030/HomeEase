@@ -1,6 +1,7 @@
 from flask import Blueprint, request, jsonify
 from models.user import db
 from models.booking import Booking
+from models.provider_profile import ProviderProfile
 
 booking_bp = Blueprint("booking", __name__)
 
@@ -43,15 +44,21 @@ def update_booking_status(booking_id):
 
     return jsonify({"message": "Booking status updated"})
 
-@booking_bp.route("/provider/<provider_id>", methods=["GET"])
-def get_provider_bookings(provider_id):
+@booking_bp.route("/provider/<user_id>", methods=["GET"])
+def get_provider_bookings(user_id):
 
-    bookings = Booking.query.filter_by(provider_id=provider_id).all()
+    # 🔥 get provider profile first
+    provider = ProviderProfile.query.filter_by(user_id=user_id).first()
 
-    results = []
+    if not provider:
+        return jsonify([])
+
+    bookings = Booking.query.filter_by(provider_id=provider.id).all()
+
+    result = []
 
     for b in bookings:
-        results.append({
+        result.append({
             "id": b.id,
             "customer_id": b.customer_id,
             "date": str(b.booking_date),
@@ -59,4 +66,4 @@ def get_provider_bookings(provider_id):
             "status": b.status
         })
 
-    return jsonify(results)
+    return jsonify(result)
