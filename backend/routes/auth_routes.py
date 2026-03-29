@@ -17,6 +17,10 @@ def register_user():
     role = data.get("role")
     password = data.get("password")
 
+    # ✅ NEW FIELDS
+    address = data.get("address")
+    city = data.get("city")
+
     if not email or not role or not password:
         return jsonify({"error": "Email, role, and password required"}), 400
 
@@ -24,7 +28,6 @@ def register_user():
     if existing_user:
         return jsonify({"error": "User already exists"}), 400
 
-    # 🔐 Hash password
     hashed_password = bcrypt.hashpw(password.encode("utf-8"), bcrypt.gensalt())
 
     new_user = User(
@@ -32,7 +35,9 @@ def register_user():
         full_name=full_name,
         phone=phone,
         role=role,
-        password=hashed_password.decode("utf-8")
+        password=hashed_password.decode("utf-8"),
+        address=address,
+        city=city
     )
 
     db.session.add(new_user)
@@ -56,9 +61,6 @@ def login_user():
 
     email = data.get("email").strip().lower()
     password = data.get("password")
-
-    from models.user import db, User
-    import bcrypt
 
     user = User.query.filter(db.func.lower(User.email) == email).first()
 

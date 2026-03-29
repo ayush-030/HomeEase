@@ -11,6 +11,8 @@ export default function Signup() {
   const [name, setName] = useState("")
   const [phone, setPhone] = useState("")
   const [password, setPassword] = useState("")
+  const [address, setAddress] = useState("")
+  const [city, setCity] = useState("")
   const [role, setRole] = useState("CUSTOMER")
 
   const register = async () => {
@@ -18,11 +20,13 @@ export default function Signup() {
     try {
 
       const res = await API.post("/auth/register", {
-        email,
+        email: email.trim().toLowerCase(),
         full_name: name,
         phone,
         role,
-        password
+        password,
+        address,
+        city
       })
 
       localStorage.setItem("user", JSON.stringify(res.data.user))
@@ -60,33 +64,49 @@ export default function Signup() {
           <input
             type="text"
             placeholder="Full Name"
-            className="border p-3 rounded-lg w-full mb-4 focus:ring-2 focus:ring-blue-400 outline-none"
+            className="border p-3 rounded-lg w-full mb-4"
             onChange={(e) => setName(e.target.value)}
           />
 
           <input
             type="email"
             placeholder="Email"
-            className="border p-3 rounded-lg w-full mb-4 focus:ring-2 focus:ring-blue-400 outline-none"
+            className="border p-3 rounded-lg w-full mb-4"
             onChange={(e) => setEmail(e.target.value)}
           />
 
           <input
             type="text"
             placeholder="Phone"
-            className="border p-3 rounded-lg w-full mb-4 focus:ring-2 focus:ring-blue-400 outline-none"
+            className="border p-3 rounded-lg w-full mb-4"
             onChange={(e) => setPhone(e.target.value)}
           />
 
           <input
             type="password"
             placeholder="Password"
-            className="border p-3 rounded-lg w-full mb-4 focus:ring-2 focus:ring-blue-400 outline-none"
+            className="border p-3 rounded-lg w-full mb-4"
             onChange={(e) => setPassword(e.target.value)}
           />
 
+          {/* ✅ NEW FIELDS */}
+
+          <input
+            type="text"
+            placeholder="Address"
+            className="border p-3 rounded-lg w-full mb-4"
+            onChange={(e) => setAddress(e.target.value)}
+          />
+
+          <input
+            type="text"
+            placeholder="City"
+            className="border p-3 rounded-lg w-full mb-4"
+            onChange={(e) => setCity(e.target.value)}
+          />
+
           <select
-            className="border p-3 rounded-lg w-full mb-6 focus:ring-2 focus:ring-blue-400 outline-none"
+            className="border p-3 rounded-lg w-full mb-6"
             onChange={(e) => setRole(e.target.value)}
           >
             <option value="CUSTOMER">Customer</option>
@@ -95,20 +115,10 @@ export default function Signup() {
 
           <button
             onClick={register}
-            className="bg-blue-600 hover:bg-blue-700 text-white w-full py-3 rounded-lg font-semibold transition"
+            className="bg-blue-600 text-white w-full py-3 rounded-lg hover:bg-blue-700"
           >
             Sign Up
           </button>
-
-          <p className="text-sm text-center mt-4 text-gray-500">
-            Already have an account?{" "}
-            <span
-              onClick={() => navigate("/login")}
-              className="text-blue-600 cursor-pointer"
-            >
-              Login
-            </span>
-          </p>
 
         </div>
 

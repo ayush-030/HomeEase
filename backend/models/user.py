@@ -16,6 +16,8 @@ class User(db.Model):
         nullable=False
     )
     password = db.Column(db.String, nullable=False)
+    address = db.Column(db.String)
+    city = db.Column(db.String)
     status = db.Column(
         db.Enum("ACTIVE", "PENDING", "BLOCKED", name="user_status"),
         default="ACTIVE"
