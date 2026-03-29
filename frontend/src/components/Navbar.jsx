@@ -51,15 +51,27 @@ export default function Navbar() {
           {user && (
 
             <>
+              {/* CUSTOMER NAV */}
               {user.role === "CUSTOMER" && (
-                <button
-                  onClick={() => navigate("/customer")}
-                  className="text-gray-600 hover:text-blue-600"
-                >
-                  Dashboard
-                </button>
+                <>
+                  <button
+                    onClick={() => navigate("/customer")}
+                    className="text-gray-600 hover:text-blue-600"
+                  >
+                    Dashboard
+                  </button>
+
+                  {/* ✅ NEW BUTTON */}
+                  <button
+                    onClick={() => navigate("/my-bookings")}
+                    className="text-gray-600 hover:text-blue-600"
+                  >
+                    My Bookings
+                  </button>
+                </>
               )}
 
+              {/* PROVIDER NAV */}
               {user.role === "PROVIDER" && (
                 <button
                   onClick={() => navigate("/provider")}
@@ -69,6 +81,7 @@ export default function Navbar() {
                 </button>
               )}
 
+              {/* ADMIN NAV */}
               {user.role === "ADMIN" && (
                 <button
                   onClick={() => navigate("/admin")}
@@ -78,6 +91,7 @@ export default function Navbar() {
                 </button>
               )}
 
+              {/* LOGOUT */}
               <button
                 onClick={logout}
                 className="bg-red-500 text-white px-4 py-2 rounded-lg hover:bg-red-600"

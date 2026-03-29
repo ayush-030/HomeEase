@@ -3,6 +3,7 @@ from models.booking import Booking
 from models.provider_profile import ProviderProfile
 from models.user import User
 from models.user import db
+from models.review import Review
 import uuid
 
 booking_bp = Blueprint("booking", __name__)
@@ -98,13 +99,14 @@ def get_customer_bookings(customer_id):
         provider = ProviderProfile.query.get(b.provider_id)
         user = User.query.get(provider.user_id) if provider else None
 
-        # Check if review exists
+        # check if review already exists
         review = Review.query.filter_by(booking_id=b.id).first()
 
         result.append({
             "id": b.id,
             "provider_name": user.full_name if user else "Unknown",
             "date": str(b.booking_date),
+            "time": str(b.booking_time),
             "status": b.status,
             "review_given": True if review else False
         })
