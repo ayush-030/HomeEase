@@ -4,6 +4,7 @@ from models.provider_profile import ProviderProfile
 from models.user import User
 from models.user import db
 from models.review import Review
+from datetime import time
 import uuid
 
 booking_bp = Blueprint("booking", __name__)
@@ -112,3 +113,35 @@ def get_customer_bookings(customer_id):
         })
 
     return jsonify(result)
+
+@booking_bp.route("/available-slots/<provider_id>", methods=["GET"])
+def get_available_slots(provider_id):
+
+    date = request.args.get("date")
+
+    if not date:
+        return jsonify({"error": "Date required"}), 400
+
+    # ⏰ Fixed slots (can upgrade later)
+    all_slots = [
+        "09:00:00",
+        "10:00:00",
+        "11:00:00",
+        "12:00:00",
+        "14:00:00",
+        "16:00:00",
+        "18:00:00"
+    ]
+
+    # Get booked slots
+    bookings = Booking.query.filter_by(
+        provider_id=provider_id,
+        booking_date=date
+    ).all()
+
+    booked_slots = [str(b.booking_time) for b in bookings]
+
+    # Remove booked slots
+    available = [slot for slot in all_slots if slot not in booked_slots]
+
+    return jsonify(available)

@@ -1,4 +1,4 @@
-import { useState } from "react"
+import { useState, useEffect } from "react"
 import { useParams, useNavigate } from "react-router-dom"
 import API from "../services/api"
 import Navbar from "../components/Navbar"
@@ -9,110 +9,126 @@ export default function BookService() {
   const navigate = useNavigate()
 
   const [date, setDate] = useState("")
-  const [time, setTime] = useState("")
-  const [showPopup, setShowPopup] = useState(false)
-  const [loading, setLoading] = useState(false)
+  const [slots, setSlots] = useState([])
+  const [selectedTime, setSelectedTime] = useState("")
 
   const user = JSON.parse(localStorage.getItem("user"))
 
-  const book = async () => {
+  // 🔥 Fetch slots when date changes
+  useEffect(() => {
 
-    if (!date || !time) {
-      alert("Please select date and time")
-      return
+    const fetchSlots = async () => {
+
+      if (!date) return
+
+      try {
+
+        const res = await API.get(`/booking/available-slots/${id}?date=${date}`)
+        setSlots(res.data)
+
+      } catch (error) {
+        console.error(error)
+      }
+
     }
+
+    fetchSlots()
+
+  }, [date])
+
+  const bookService = async () => {
 
     try {
 
-      setLoading(true)
+      if (!date || !selectedTime) {
+        alert("Please select date and time")
+        return
+      }
 
       await API.post("/booking/create", {
-        customer_id: user?.id,
+        customer_id: user.id,
         provider_id: id,
+        category_id: 2,
         booking_date: date,
-        booking_time: time
+        booking_time: selectedTime
       })
 
-      setShowPopup(true)
+      alert("Booking requested successfully ✅")
+
+      navigate("/my-bookings")
 
     } catch (error) {
-
       console.error(error)
       alert("Booking failed")
-
-    } finally {
-      setLoading(false)
     }
 
   }
 
   return (
 
-    <div className="min-h-screen bg-gradient-to-br from-blue-50 to-blue-100">
+    <div className="min-h-screen bg-gray-100">
 
       <Navbar />
 
-      <div className="flex justify-center items-center mt-20">
+      <div className="max-w-xl mx-auto p-10">
 
-        <div className="bg-white p-10 rounded-2xl shadow-xl w-96">
+        <div className="bg-white p-8 rounded-xl shadow">
 
-          <h2 className="text-2xl font-bold mb-6 text-center">
+          <h2 className="text-2xl font-bold mb-6">
             Book Service
           </h2>
 
+          {/* DATE */}
           <input
             type="date"
-            className="border p-3 w-full mb-4 rounded-lg"
+            className="border p-3 w-full mb-6 rounded"
             onChange={(e) => setDate(e.target.value)}
           />
 
-          <input
-            type="time"
-            className="border p-3 w-full mb-6 rounded-lg"
-            onChange={(e) => setTime(e.target.value)}
-          />
+          {/* TIME SLOTS */}
+          {slots.length > 0 && (
 
+            <div className="mb-6">
+
+              <p className="mb-3 font-medium">
+                Select Time Slot:
+              </p>
+
+              <div className="grid grid-cols-3 gap-3">
+
+                {slots.map((slot, index) => (
+
+                  <button
+                    key={index}
+                    onClick={() => setSelectedTime(slot)}
+                    className={`p-2 rounded border ${
+                      selectedTime === slot
+                        ? "bg-blue-600 text-white"
+                        : "bg-gray-100"
+                    }`}
+                  >
+                    {slot.slice(0,5)}
+                  </button>
+
+                ))}
+
+              </div>
+
+            </div>
+
+          )}
+
+          {/* BOOK BUTTON */}
           <button
-            onClick={book}
-            disabled={loading}
-            className="bg-blue-600 text-white w-full py-3 rounded-lg hover:bg-blue-700 transition"
+            onClick={bookService}
+            className="bg-blue-600 text-white w-full py-3 rounded hover:bg-blue-700"
           >
-            {loading ? "Booking..." : "Confirm Booking"}
+            Confirm Booking
           </button>
 
         </div>
 
       </div>
-
-      {/* ✅ CUSTOM POPUP */}
-
-      {showPopup && (
-        <div className="fixed inset-0 bg-black bg-opacity-40 flex justify-center items-center z-50">
-
-          <div className="bg-white p-8 rounded-xl shadow-lg text-center w-80">
-
-            <h2 className="text-xl font-semibold mb-3">
-              ✅ Booking Requested
-            </h2>
-
-            <p className="text-gray-500 mb-6">
-              Waiting for provider to accept your request
-            </p>
-
-            <button
-              onClick={() => {
-                setShowPopup(false)
-                navigate("/customer")
-              }}
-              className="bg-blue-600 text-white px-6 py-2 rounded"
-            >
-              OK
-            </button>
-
-          </div>
-
-        </div>
-      )}
 
     </div>
   )
