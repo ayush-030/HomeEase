@@ -2,8 +2,9 @@ from flask import Blueprint, request, jsonify
 from models.user import db
 from models.provider_profile import ProviderProfile
 from models.review import Review
-import math
+from models.booking import Booking
 from models.user import User
+import math
 
 provider_bp = Blueprint("provider", __name__)
 
@@ -12,7 +13,7 @@ provider_bp = Blueprint("provider", __name__)
 # HAVERSINE DISTANCE FUNCTION
 # -----------------------------
 def haversine(lat1, lon1, lat2, lon2):
-    R = 6371  # Earth radius in km
+    R = 6371
 
     dlat = math.radians(lat2 - lat1)
     dlon = math.radians(lon2 - lon1)
@@ -32,30 +33,20 @@ def haversine(lat1, lon1, lat2, lon2):
 def create_provider_profile():
 
     data = request.get_json()
-
     user_id = data.get("user_id")
 
-    # 🔒 Prevent duplicate profiles
     existing_profile = ProviderProfile.query.filter_by(user_id=user_id).first()
     if existing_profile:
-        return jsonify({
-            "error": "Provider profile already exists for this user"
-        }), 400
-
-    bio = data.get("bio")
-    experience_years = data.get("experience_years")
-    latitude = data.get("latitude")
-    longitude = data.get("longitude")
-    service_radius_km = data.get("service_radius_km", 5)
+        return jsonify({"error": "Provider profile already exists"}), 400
 
     try:
         profile = ProviderProfile(
             user_id=user_id,
-            bio=bio,
-            experience_years=experience_years,
-            latitude=latitude,
-            longitude=longitude,
-            service_radius_km=service_radius_km
+            bio=data.get("bio"),
+            experience_years=data.get("experience_years"),
+            latitude=data.get("latitude"),
+            longitude=data.get("longitude"),
+            service_radius_km=data.get("service_radius_km", 5)
         )
 
         db.session.add(profile)
@@ -76,26 +67,28 @@ def create_provider_profile():
 @provider_bp.route("/status/<user_id>", methods=["GET"])
 def check_provider_status(user_id):
 
-    profile = ProviderProfile.query.filter_by(user_id=user_id).first()
+    provider = ProviderProfile.query.filter_by(user_id=user_id).first()
 
-    if not profile:
+    if not provider:
         return jsonify({"status": "NOT_CREATED"})
 
-    if not profile.is_approved:
+    if not provider.is_approved:
         return jsonify({"status": "PENDING"})
 
-    return jsonify({"status": "APPROVED"})
+    return jsonify({
+        "status": "APPROVED",
+        "provider_id": provider.id
+    })
 
 
 # -----------------------------
-# SEARCH PROVIDERS (SMART RANKING + DISTANCE)
+# SEARCH PROVIDERS (SMART)
 # -----------------------------
 @provider_bp.route("/search", methods=["GET"])
 def search_providers():
 
     latitude = float(request.args.get("latitude"))
     longitude = float(request.args.get("longitude"))
-    category_id = int(request.args.get("category_id"))
 
     providers = ProviderProfile.query.filter_by(is_approved=True).all()
 
@@ -103,32 +96,26 @@ def search_providers():
 
     for provider in providers:
 
-        # 📍 Skip if no location
         if provider.latitude is None or provider.longitude is None:
             continue
 
-        # 📍 Distance
         distance = haversine(latitude, longitude, provider.latitude, provider.longitude)
 
-        # 📍 Radius filter
         radius = provider.service_radius_km or 5
         if distance > radius:
             continue
 
-        # 👤 FIX: Get user manually (IMPORTANT FIX)
         user = User.query.get(provider.user_id)
 
-        # ⭐ Reviews
+        # ✅ FIXED RATING LOGIC
         reviews = Review.query.filter_by(provider_id=provider.id).all()
-        review_count = len(reviews)
+        valid_ratings = [r.rating for r in reviews if r.rating is not None]
 
-        avg_rating = 0
-        if review_count > 0:
-            avg_rating = sum(r.rating for r in reviews if r.rating is not None) / review_count
+        review_count = len(valid_ratings)
+        avg_rating = sum(valid_ratings) / review_count if review_count > 0 else 0
 
         experience = provider.experience_years or 0
 
-        # 🤖 Smart Score
         score = (
             (avg_rating * 2) +
             (experience * 0.3) +
@@ -149,13 +136,13 @@ def search_providers():
             "score": round(score, 2)
         })
 
-    # 🔥 Sort by best providers
     ranked.sort(key=lambda x: x["score"], reverse=True)
 
     return jsonify(ranked)
 
+
 # -----------------------------
-# PROVIDER DETAILS (WITH RATING)
+# PROVIDER DETAILS
 # -----------------------------
 @provider_bp.route("/details/<provider_id>", methods=["GET"])
 def provider_details(provider_id):
@@ -168,26 +155,76 @@ def provider_details(provider_id):
     user = User.query.get(provider.user_id)
 
     reviews = Review.query.filter_by(provider_id=provider.id).all()
+    valid_ratings = [r.rating for r in reviews if r.rating is not None]
 
-    total = 0
+    avg = sum(valid_ratings) / len(valid_ratings) if valid_ratings else 0
+
     review_list = []
 
     for r in reviews:
-        total += r.rating
+        booking = Booking.query.get(r.booking_id)
+        customer = User.query.get(booking.customer_id) if booking else None
 
         review_list.append({
             "rating": r.rating,
-            "comment": r.comment
+            "comment": r.comment,
+            "customer_name": customer.full_name if customer else "Unknown"
         })
-
-    avg = total / len(reviews) if len(reviews) > 0 else 0
 
     return jsonify({
         "name": user.full_name if user else "Unknown",
         "bio": provider.bio,
         "experience": provider.experience_years,
         "rating": round(avg, 1),
-        "reviews_count": len(reviews),
+        "reviews_count": len(valid_ratings),
         "phone": user.phone if user else "N/A",
-        "reviews": review_list   # ✅ IMPORTANT
+        "reviews": review_list
+    })
+
+
+# -----------------------------
+# PROVIDER REVIEWS (DETAILED)
+# -----------------------------
+@provider_bp.route("/reviews/<provider_id>", methods=["GET"])
+def get_provider_reviews(provider_id):
+
+    reviews = Review.query.filter_by(provider_id=provider_id).all()
+
+    result = []
+
+    for r in reviews:
+
+        booking = Booking.query.get(r.booking_id)
+        customer = User.query.get(booking.customer_id) if booking else None
+
+        result.append({
+            "rating": r.rating,
+            "comment": r.comment,
+            "customer_name": customer.full_name if customer else "Unknown"
+        })
+
+    return jsonify(result)
+
+
+# -----------------------------
+# PROVIDER RATING (SUMMARY)
+# -----------------------------
+@provider_bp.route("/ratings/<provider_id>", methods=["GET"])
+def get_provider_rating(provider_id):
+
+    reviews = Review.query.filter_by(provider_id=provider_id).all()
+
+    valid_ratings = [r.rating for r in reviews if r.rating is not None]
+
+    if len(valid_ratings) == 0:
+        return jsonify({
+            "average": 0,
+            "count": 0
+        })
+
+    avg = sum(valid_ratings) / len(valid_ratings)
+
+    return jsonify({
+        "average": round(avg, 1),
+        "count": len(valid_ratings)
     })

@@ -13,25 +13,22 @@ def create_review():
 
     data = request.get_json()
 
-    booking_id = data.get("booking_id")
-    rating = data.get("rating")
-    comment = data.get("comment")
-
-    # 🔥 Get provider_id from booking
-    booking = Booking.query.get(booking_id)
+    booking = Booking.query.get(data.get("booking_id"))
 
     if not booking:
-        return jsonify({"error": "Booking not found"}), 404
+        return jsonify({"error": "Invalid booking"}), 400
+
+    # 🔥 IMPORTANT: get provider_id from booking
+    provider_id = booking.provider_id
 
     review = Review(
-        id=str(uuid.uuid4()),
-        booking_id=booking_id,
-        provider_id=booking.provider_id,  # ✅ AUTO LINK
-        rating=rating,
-        comment=comment
+        booking_id=booking.id,
+        provider_id=provider_id,   # ✅ THIS FIXES YOUR ISSUE
+        rating=data.get("rating"),
+        comment=data.get("comment")
     )
 
     db.session.add(review)
     db.session.commit()
 
-    return jsonify({"message": "Review submitted successfully"})
+    return jsonify({"message": "Review submitted"})

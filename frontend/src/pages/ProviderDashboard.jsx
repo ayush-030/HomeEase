@@ -6,52 +6,61 @@ export default function ProviderDashboard() {
 
   const [bookings, setBookings] = useState([])
   const [status, setStatus] = useState("")
+  const [rating, setRating] = useState({ average: 0, count: 0 })
+  const [reviews, setReviews] = useState([]) // ✅ NEW
 
   const user = JSON.parse(localStorage.getItem("user"))
 
   const fetchBookings = async () => {
-
     try {
-
       const res = await API.get(`/booking/provider/${user.id}`)
       setBookings(res.data)
-
     } catch (error) {
-
-      console.error("Error fetching bookings:", error)
-
+      console.error(error)
     }
-
   }
 
   const checkStatus = async () => {
-
     try {
-
       const res = await API.get(`/provider/status/${user.id}`)
       setStatus(res.data.status)
 
+      if (res.data.provider_id) {
+        fetchRating(res.data.provider_id)
+        fetchReviews(res.data.provider_id) // ✅ NEW
+      }
+
     } catch (error) {
-
-      console.error("Error checking status:", error)
-
+      console.error(error)
     }
+  }
 
+  const fetchRating = async (providerId) => {
+    try {
+      const res = await API.get(`/provider/ratings/${providerId}`)
+      setRating(res.data)
+    } catch (error) {
+      console.error(error)
+    }
+  }
+
+  // ✅ NEW FUNCTION
+  const fetchReviews = async (providerId) => {
+    try {
+      const res = await API.get(`/provider/reviews/${providerId}`)
+      setReviews(res.data)
+    } catch (error) {
+      console.error(error)
+    }
   }
 
   const updateStatus = async (id, status) => {
-
     try {
-
       await API.put(`/booking/update-status/${id}`, { status })
       fetchBookings()
-
     } catch (error) {
-
-      console.error("Error updating booking:", error)
-
+      console.error(error)
     }
-
   }
 
   useEffect(() => {
@@ -64,7 +73,13 @@ export default function ProviderDashboard() {
     }
   }, [status])
 
-  // ⛔ Waiting for approval
+  // 📊 Stats
+  const total = bookings.length
+  const pending = bookings.filter(b => b.status === "PENDING").length
+  const accepted = bookings.filter(b => b.status === "ACCEPTED").length
+  const completed = bookings.filter(b => b.status === "COMPLETED").length
+
+  // ⛔ Waiting
   if (status === "PENDING") {
     return (
       <div className="min-h-screen bg-gray-100">
@@ -90,9 +105,6 @@ export default function ProviderDashboard() {
           <h2 className="text-3xl font-semibold mb-4">
             No Provider Profile Found
           </h2>
-          <p className="text-gray-500 mb-6">
-            Please create your provider profile first.
-          </p>
           <button
             onClick={() => window.location.href = "/provider-profile"}
             className="bg-blue-600 text-white px-6 py-3 rounded"
@@ -104,7 +116,6 @@ export default function ProviderDashboard() {
     )
   }
 
-  // ✅ Dashboard
   return (
 
     <div className="min-h-screen bg-gray-100">
@@ -113,117 +124,189 @@ export default function ProviderDashboard() {
 
       <div className="max-w-6xl mx-auto p-10">
 
-        <h1 className="text-3xl font-bold mb-8">
+        <h1 className="text-3xl font-bold mb-6">
           Provider Dashboard
         </h1>
 
-        <div className="grid gap-6">
+        {/* ⭐ RATING SUMMARY */}
+        <div className="bg-white p-6 rounded-xl shadow mb-10 flex justify-between items-center">
 
-          {bookings.length === 0 ? (
+          <div>
+            <p className="text-gray-500">Your Rating</p>
+            <h2 className="text-2xl font-bold text-yellow-500">
+              ⭐ {rating.average || 0}
+            </h2>
+          </div>
 
-            <p className="text-gray-500">
-              No bookings yet.
-            </p>
+          <div>
+            <p className="text-gray-500">Reviews</p>
+            <h2 className="text-2xl font-bold">
+              {rating.count || 0}
+            </h2>
+          </div>
+
+        </div>
+
+        {/* 📝 REVIEWS SECTION */}
+        <div className="bg-white p-6 rounded-xl shadow mb-10">
+
+          <h2 className="text-xl font-semibold mb-4">
+            Customer Reviews
+          </h2>
+
+          {reviews.length === 0 ? (
+
+            <p className="text-gray-500">No reviews yet</p>
 
           ) : (
 
-            bookings.map((b) => (
+            <div className="space-y-4">
 
-              <div key={b.id} className="bg-white p-6 rounded-xl shadow">
+              {reviews.map((r, index) => (
 
-                {/* CUSTOMER INFO */}
-                <h3 className="text-lg font-semibold mb-1">
-                  {b.customer_name || "Unknown Customer"}
-                </h3>
+                <div key={index} className="border-b pb-3">
 
-                <p className="text-sm text-gray-600">
-                  📞 {b.customer_phone || "N/A"}
-                </p>
+                  <p className="font-medium">
+                    👤 {r.customer_name}
+                  </p>
 
-                <p className="text-sm text-gray-500 mb-3">
-                  📍 {b.customer_address || ""} {b.customer_city || ""}
-                </p>
+                  <p className="text-yellow-500">
+                    ⭐ {r.rating}
+                  </p>
 
-                {/* BOOKING INFO */}
-                <p><strong>Date:</strong> {b.date}</p>
-                <p><strong>Time:</strong> {b.time}</p>
+                  <p className="text-gray-600">
+                    {r.comment || "No comment"}
+                  </p>
 
-                <p className="mt-2">
-                  <strong>Status:</strong>{" "}
-                  <span className={
-                    b.status === "PENDING" ? "text-yellow-600" :
-                    b.status === "ACCEPTED" ? "text-green-600" :
-                    "text-red-600"
-                  }>
-                    {b.status}
-                  </span>
-                </p>
+                </div>
 
-                {/* ACTION BUTTONS */}
-                {b.status === "PENDING" && (
+              ))}
 
-                  <div className="flex gap-4 mt-4">
-
-                    <button
-                      onClick={() => updateStatus(b.id, "ACCEPTED")}
-                      className="bg-green-600 text-white px-4 py-2 rounded hover:bg-green-700"
-                    >
-                      Accept
-                    </button>
-
-                    <button
-                      onClick={() => updateStatus(b.id, "REJECTED")}
-                      className="bg-red-600 text-white px-4 py-2 rounded hover:bg-red-700"
-                    >
-                      Reject
-                    </button>
-
-                  </div>
-
-                )}
-
-                {/* CONTACT AFTER ACCEPT */}
-                {b.status === "ACCEPTED" && (
-
-                  <div className="mt-4 p-3 bg-green-50 rounded">
-
-                    <p className="text-green-700 font-medium mb-1">
-                      Contact Customer:
-                    </p>
-
-                    <p>📞 {b.customer_phone}</p>
-                    <br />
-                    {/* WhatsApp Button */}
-                    
-                    <a
-                      href={`https://wa.me/91${b.customer_phone?.replace(/\D/g, "")}?text=${encodeURIComponent(
-                        "Hello, I accepted your booking on HomeEase. Let's connect!"
-                      )}`}
-                      target="_blank"
-                      rel="noopener noreferrer"
-                      className="bg-green-600 text-white px-4 py-2 rounded hover:bg-green-700 inline-block"
-                    >
-                      💬 Chat on WhatsApp
-                    </a>
-                    <br />
-                    <button
-                      onClick={() => updateStatus(b.id, "COMPLETED")}
-                      className="bg-blue-600 text-white px-4 py-2 rounded mt-3"
-                    >
-                      Mark as Completed
-                    </button>
-
-                  </div>
-
-                )}
-
-              </div>
-
-            ))
+            </div>
 
           )}
 
         </div>
+
+        {/* 📊 STATS */}
+        <div className="grid grid-cols-2 md:grid-cols-4 gap-6 mb-10">
+
+          <div className="bg-white p-6 rounded-xl shadow text-center">
+            <p className="text-gray-500">Total</p>
+            <h2 className="text-2xl font-bold">{total}</h2>
+          </div>
+
+          <div className="bg-yellow-100 p-6 rounded-xl text-center">
+            <p className="text-yellow-700">Pending</p>
+            <h2 className="text-2xl font-bold">{pending}</h2>
+          </div>
+
+          <div className="bg-green-100 p-6 rounded-xl text-center">
+            <p className="text-green-700">Accepted</p>
+            <h2 className="text-2xl font-bold">{accepted}</h2>
+          </div>
+
+          <div className="bg-blue-100 p-6 rounded-xl text-center">
+            <p className="text-blue-700">Completed</p>
+            <h2 className="text-2xl font-bold">{completed}</h2>
+          </div>
+
+        </div>
+
+        {/* SECTIONS */}
+        <Section title="Pending Requests" bookings={bookings.filter(b => b.status === "PENDING")} updateStatus={updateStatus} />
+        <Section title="Active Jobs" bookings={bookings.filter(b => b.status === "ACCEPTED")} updateStatus={updateStatus} />
+        <Section title="Completed Jobs" bookings={bookings.filter(b => b.status === "COMPLETED")} updateStatus={updateStatus} />
+
+      </div>
+
+    </div>
+  )
+}
+
+/* 🔥 SECTION COMPONENT */
+function Section({ title, bookings, updateStatus }) {
+
+  if (bookings.length === 0) return null
+
+  return (
+
+    <div className="mb-10">
+
+      <h2 className="text-xl font-semibold mb-4">{title}</h2>
+
+      <div className="grid gap-6">
+
+        {bookings.map((b) => (
+
+          <div key={b.id} className="bg-white p-6 rounded-xl shadow">
+
+            <div className="flex justify-between items-center mb-3">
+
+              <p className="font-semibold">
+                👤 {b.customer_name}
+              </p>
+
+              <span className={`px-3 py-1 rounded-full text-sm font-medium
+                ${b.status === "PENDING" && "bg-yellow-100 text-yellow-700"}
+                ${b.status === "ACCEPTED" && "bg-green-100 text-green-700"}
+                ${b.status === "COMPLETED" && "bg-blue-100 text-blue-700"}
+                ${b.status === "REJECTED" && "bg-red-100 text-red-700"}
+              `}>
+                {b.status}
+              </span>
+
+            </div>
+
+            <p>📞 {b.customer_phone}</p>
+            <p>📍 {b.customer_address}, {b.customer_city}</p>
+            <p>📅 {b.date} | ⏰ {b.time}</p>
+
+            <div className="flex gap-3 mt-4">
+
+              {b.status === "PENDING" && (
+                <>
+                  <button
+                    onClick={() => updateStatus(b.id, "ACCEPTED")}
+                    className="bg-green-600 text-white px-4 py-2 rounded"
+                  >
+                    Accept
+                  </button>
+
+                  <button
+                    onClick={() => updateStatus(b.id, "REJECTED")}
+                    className="bg-red-600 text-white px-4 py-2 rounded"
+                  >
+                    Reject
+                  </button>
+                </>
+              )}
+
+              {b.status === "ACCEPTED" && (
+                <>
+                  <button
+                    onClick={() => updateStatus(b.id, "COMPLETED")}
+                    className="bg-blue-600 text-white px-4 py-2 rounded"
+                  >
+                    Complete
+                  </button>
+
+                  <a
+                    href={`https://wa.me/91${b.customer_phone}`}
+                    target="_blank"
+                    rel="noreferrer"
+                    className="bg-green-500 text-white px-4 py-2 rounded"
+                  >
+                    WhatsApp
+                  </a>
+                </>
+              )}
+
+            </div>
+
+          </div>
+
+        ))}
 
       </div>
 
