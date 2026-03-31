@@ -11,6 +11,10 @@ export default function CustomerDashboard() {
   const [category, setCategory] = useState(2)
   const [location, setLocation] = useState(null)
 
+  // ✅ NEW STATES
+  const [filter, setFilter] = useState("TOP_RATED")
+  const [loading, setLoading] = useState(false)
+
   // 📍 Detect user location
   const getLocation = () => {
 
@@ -50,16 +54,29 @@ export default function CustomerDashboard() {
         return
       }
 
+      setLoading(true)
+
       const res = await API.get(
         `/provider/search?latitude=${location.latitude}&longitude=${location.longitude}&category_id=${category}`
       )
 
-      setProviders(res.data)
+      let data = res.data
+
+      // 🔥 FILTER LOGIC
+      if (filter === "NEARBY") {
+        data = data.sort((a, b) => a.distance - b.distance)
+      }
+
+      if (filter === "TOP_RATED") {
+        data = data.sort((a, b) => b.rating - a.rating)
+      }
+
+      setProviders(data)
 
     } catch (error) {
-
       console.error("Error fetching providers:", error)
-
+    } finally {
+      setLoading(false)
     }
 
   }
@@ -73,7 +90,6 @@ export default function CustomerDashboard() {
       <div className="max-w-6xl mx-auto px-6 py-12">
 
         {/* HERO */}
-
         <div className="text-center mb-12">
 
           <h1 className="text-5xl font-bold text-gray-800 mb-4">
@@ -87,7 +103,6 @@ export default function CustomerDashboard() {
         </div>
 
         {/* LOCATION STATUS */}
-
         {!location && (
           <p className="text-center text-gray-500 mb-6">
             Detecting your location...
@@ -95,11 +110,36 @@ export default function CustomerDashboard() {
         )}
 
         {/* SERVICE CATEGORIES */}
-
         <ServiceCategories setCategory={setCategory} />
 
-        {/* SEARCH BUTTON */}
+        {/* ✅ FILTER BUTTONS */}
+        <div className="flex justify-center gap-4 mb-6">
 
+          <button
+            onClick={() => setFilter("TOP_RATED")}
+            className={`px-4 py-2 rounded ${
+              filter === "TOP_RATED"
+                ? "bg-blue-600 text-white"
+                : "bg-gray-200"
+            }`}
+          >
+            ⭐ Top Rated
+          </button>
+
+          <button
+            onClick={() => setFilter("NEARBY")}
+            className={`px-4 py-2 rounded ${
+              filter === "NEARBY"
+                ? "bg-blue-600 text-white"
+                : "bg-gray-200"
+            }`}
+          >
+            📍 Nearby
+          </button>
+
+        </div>
+
+        {/* SEARCH BUTTON */}
         <div className="flex justify-center mb-10">
 
           <button
@@ -112,32 +152,42 @@ export default function CustomerDashboard() {
         </div>
 
         {/* MAP */}
-
         {providers.length > 0 && (
           <div className="mb-12">
             <ProviderMap providers={providers} />
           </div>
         )}
 
-        {/* PROVIDERS */}
+        {/* PROVIDERS / LOADING */}
+        {loading ? (
 
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-
-          {providers.length === 0 ? (
-
-            <p className="text-gray-500 text-center col-span-3">
-              Click "Find Providers" to see nearby services
+          <div className="text-center text-gray-500 mt-10">
+            <p className="text-lg animate-pulse">
+              Searching best providers for you...
             </p>
+          </div>
 
-          ) : (
+        ) : (
 
-            providers.map((p) => (
-              <ProviderCard key={p.provider_id} provider={p} />
-            ))
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
 
-          )}
+            {providers.length === 0 ? (
 
-        </div>
+              <p className="text-gray-500 text-center col-span-3">
+                Click "Find Providers" to see nearby services
+              </p>
+
+            ) : (
+
+              providers.map((p) => (
+                <ProviderCard key={p.provider_id} provider={p} />
+              ))
+
+            )}
+
+          </div>
+
+        )}
 
       </div>
 
