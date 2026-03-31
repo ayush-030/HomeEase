@@ -14,10 +14,8 @@ export default function CustomerBookings() {
   const fetchBookings = async () => {
 
     try {
-
       const res = await API.get(`/booking/customer/${user.id}`)
       setBookings(res.data)
-
     } catch (error) {
       console.error(error)
     }
@@ -32,18 +30,21 @@ export default function CustomerBookings() {
 
     try {
 
+      if (rating === 0) {
+        alert("Please select a rating")
+        return
+      }
+
       await API.post("/review/create", {
         booking_id: selectedBooking.id,
         rating,
         comment
       })
 
-      alert("Review submitted ✅")
-
+      // ✅ Reset + refresh (no alert now)
       setSelectedBooking(null)
       setRating(0)
       setComment("")
-
       fetchBookings()
 
     } catch (error) {
@@ -69,28 +70,67 @@ export default function CustomerBookings() {
 
           {bookings.length === 0 ? (
 
-            <p className="text-gray-500">No bookings yet</p>
+            <div className="text-center text-gray-500 mt-20">
+              <p className="text-lg">No bookings yet</p>
+              <p className="text-sm mt-2">
+                Book a service to see it here
+              </p>
+            </div>
 
           ) : (
 
             bookings.map((b) => (
 
-              <div key={b.id} className="bg-white p-6 rounded-xl shadow">
+              <div
+                key={b.id}
+                className="bg-white p-6 rounded-xl shadow hover:shadow-lg transition"
+              >
 
-                <p><strong>Provider:</strong> {b.provider_name}</p>
-                <p><strong>Date:</strong> {b.date}</p>
-                <p><strong>Status:</strong> {b.status}</p>
+                {/* HEADER */}
+                <div className="flex justify-between items-center mb-3">
 
-                {/* SHOW RATE BUTTON */}
+                  <h3 className="text-lg font-semibold">
+                    {b.provider_name}
+                  </h3>
+
+                  {/* STATUS BADGE */}
+                  <span className={`px-3 py-1 rounded-full text-sm font-medium
+                    ${b.status === "PENDING" && "bg-yellow-100 text-yellow-700"}
+                    ${b.status === "ACCEPTED" && "bg-green-100 text-green-700"}
+                    ${b.status === "COMPLETED" && "bg-blue-100 text-blue-700"}
+                    ${b.status === "REJECTED" && "bg-red-100 text-red-700"}
+                  `}>
+                    {b.status}
+                  </span>
+
+                </div>
+
+                {/* DETAILS */}
+                <p className="text-gray-500 text-sm mb-1">
+                  📅 {b.date}
+                </p>
+
+                <p className="text-gray-500 text-sm mb-3">
+                  ⏰ {b.time}
+                </p>
+
+                {/* RATE BUTTON */}
                 {b.status === "COMPLETED" && !b.review_given && (
 
                   <button
                     onClick={() => setSelectedBooking(b)}
-                    className="bg-yellow-500 text-white px-4 py-2 rounded mt-3"
+                    className="bg-yellow-500 hover:bg-yellow-600 text-white px-4 py-2 rounded"
                   >
                     ⭐ Rate Service
                   </button>
 
+                )}
+
+                {/* REVIEW DONE */}
+                {b.review_given && (
+                  <p className="text-green-600 text-sm font-medium">
+                    ✔ Review Submitted
+                  </p>
                 )}
 
               </div>
@@ -116,15 +156,14 @@ export default function CustomerBookings() {
             </h2>
 
             {/* STAR SELECTOR */}
-
             <div className="flex gap-2 mb-4">
 
-              {[1,2,3,4,5].map((star) => (
+              {[1, 2, 3, 4, 5].map((star) => (
 
                 <span
                   key={star}
                   onClick={() => setRating(star)}
-                  className={`cursor-pointer text-2xl ${
+                  className={`cursor-pointer text-3xl transition ${
                     star <= rating ? "text-yellow-500" : "text-gray-300"
                   }`}
                 >
@@ -138,12 +177,13 @@ export default function CustomerBookings() {
             <textarea
               placeholder="Write a comment (optional)"
               className="border p-3 w-full mb-4 rounded"
+              value={comment}
               onChange={(e) => setComment(e.target.value)}
             />
 
             <button
               onClick={submitReview}
-              className="bg-blue-600 text-white w-full py-2 rounded"
+              className="bg-blue-600 hover:bg-blue-700 text-white w-full py-2 rounded transition"
             >
               Submit Review
             </button>

@@ -187,21 +187,27 @@ def provider_details(provider_id):
 
     user = User.query.get(provider.user_id)
 
-    # Get reviews
     reviews = Review.query.filter_by(provider_id=provider.id).all()
 
-    avg = 0
-    count = len(reviews)
+    total = 0
+    review_list = []
 
-    if count > 0:
-        total = sum(r.rating for r in reviews if r.rating is not None)
-        avg = total / count
+    for r in reviews:
+        total += r.rating
+
+        review_list.append({
+            "rating": r.rating,
+            "comment": r.comment
+        })
+
+    avg = total / len(reviews) if len(reviews) > 0 else 0
 
     return jsonify({
         "name": user.full_name if user else "Unknown",
         "bio": provider.bio,
         "experience": provider.experience_years,
         "rating": round(avg, 1),
-        "reviews": count,
-        "phone": user.phone if user else "N/A"
+        "reviews_count": len(reviews),
+        "phone": user.phone if user else "N/A",
+        "reviews": review_list   # ✅ IMPORTANT
     })
