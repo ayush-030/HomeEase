@@ -1,13 +1,16 @@
 import { useEffect, useState } from "react"
-import { useParams } from "react-router-dom"
+import { useParams, useNavigate } from "react-router-dom"
 import API from "../services/api"
 import Navbar from "../components/Navbar"
 
 export default function ProviderProfile() {
 
   const { id } = useParams()
+  const navigate = useNavigate()
 
   const [provider, setProvider] = useState(null)
+
+  const user = JSON.parse(localStorage.getItem("user"))
 
   useEffect(() => {
 
@@ -55,9 +58,19 @@ export default function ProviderProfile() {
             Experience: {provider.experience} years
           </p>
 
-          <p className="text-lg font-semibold text-yellow-500">
+          <p className="text-lg font-semibold text-yellow-500 mb-4">
             ⭐ {provider.rating} ({provider.reviews_count} reviews)
           </p>
+
+          {/* ✅ BOOK SERVICE BUTTON */}
+          {user?.role === "CUSTOMER" && (
+            <button
+              onClick={() => navigate(`/book/${id}`)}
+              className="bg-blue-600 hover:bg-blue-700 text-white px-6 py-3 rounded-lg"
+            >
+              Book Service
+            </button>
+          )}
 
         </div>
 

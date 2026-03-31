@@ -103,76 +103,56 @@ def search_providers():
 
     for provider in providers:
 
-        # 📍 Accurate distance
-        distance = haversine(latitude, longitude, provider.latitude, provider.longitude)
-
-        # Filter within radius (optional)
-        if distance > (provider.service_radius_km or 5):
+        # 📍 Skip if no location
+        if provider.latitude is None or provider.longitude is None:
             continue
 
-        reviews = Review.query.filter_by(provider_id=provider.id).all()
+        # 📍 Distance
+        distance = haversine(latitude, longitude, provider.latitude, provider.longitude)
 
+        # 📍 Radius filter
+        radius = provider.service_radius_km or 5
+        if distance > radius:
+            continue
+
+        # 👤 FIX: Get user manually (IMPORTANT FIX)
+        user = User.query.get(provider.user_id)
+
+        # ⭐ Reviews
+        reviews = Review.query.filter_by(provider_id=provider.id).all()
         review_count = len(reviews)
 
         avg_rating = 0
         if review_count > 0:
-            avg_rating = sum(r.rating for r in reviews) / review_count
+            avg_rating = sum(r.rating for r in reviews if r.rating is not None) / review_count
 
         experience = provider.experience_years or 0
 
-        # 🤖 Smart ranking formula
+        # 🤖 Smart Score
         score = (
-            0.5 * avg_rating +
-            0.2 * experience +
-            0.2 * review_count -
-            0.1 * distance
+            (avg_rating * 2) +
+            (experience * 0.3) +
+            (review_count * 0.2) -
+            (distance * 0.5)
         )
 
         ranked.append({
             "provider_id": provider.id,
-            "bio": provider.bio,
+            "name": user.full_name if user else "Unknown",
+            "bio": provider.bio or "No description",
             "experience": experience,
             "latitude": provider.latitude,
             "longitude": provider.longitude,
             "rating": round(avg_rating, 1),
             "reviews": review_count,
             "distance": round(distance, 2),
-            "score": score
+            "score": round(score, 2)
         })
 
-    # Sort by best providers first
+    # 🔥 Sort by best providers
     ranked.sort(key=lambda x: x["score"], reverse=True)
 
     return jsonify(ranked)
-
-
-# -----------------------------
-# PROVIDER RATINGS
-# -----------------------------
-@provider_bp.route("/ratings/<provider_id>", methods=["GET"])
-def get_provider_rating(provider_id):
-
-    # Get all reviews for this provider
-    reviews = Review.query.filter_by(provider_id=provider_id).all()
-
-    # No reviews case
-    if not reviews:
-        return jsonify({
-            "average": 0,
-            "count": 0
-        })
-
-    # Calculate average
-    total = sum(r.rating for r in reviews if r.rating is not None)
-    count = len(reviews)
-
-    avg = total / count if count > 0 else 0
-
-    return jsonify({
-        "average": round(avg, 1),
-        "count": count
-    })
-
 
 # -----------------------------
 # PROVIDER DETAILS (WITH RATING)
