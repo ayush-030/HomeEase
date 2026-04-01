@@ -48,9 +48,9 @@ function Navbar() {
                   Provider Dashboard
                 </Link>
 
-                {/* <Link to="/admin-dashboard" onClick={closeDropdown}> */}
-                  {/* Admin Dashboard */}
-                {/* </Link> */}
+                <Link to="/admin-dashboard" onClick={closeDropdown}>
+                  Admin Dashboard
+                </Link>
 
               </div>
             )}

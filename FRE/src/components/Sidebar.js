@@ -39,10 +39,29 @@ function Sidebar({ role }) {
         <NavLink className="sidebar-item jobs-link" to="/active-jobs">
           Active Jobs
         </NavLink>
+      </>
+    );
+  }
 
-        {/* <NavLink className="sidebar-item earnings-link" to="/earnings"> */}
-          {/* Earnings */}
-        {/* </NavLink> */}
+  else if (role === "admin") {  
+    logoRedirect = "/admin-dashboard"
+    menu = (
+      <>
+        <NavLink className="sidebar-item dashboard-link" to="/admin-dashboard">
+         Dashboard
+        </NavLink>
+
+        <NavLink className="sidebar-item" to="/manage-users">
+         Manage Users
+        </NavLink>
+
+        <NavLink className="sidebar-item" to="/manage-providers">
+         Manage Providers
+        </NavLink>
+
+       <NavLink className="sidebar-item" to="/manage-bookings">
+         Manage Bookings
+       </NavLink>
       </>
     );
   }

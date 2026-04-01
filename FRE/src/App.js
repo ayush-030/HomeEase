@@ -8,7 +8,10 @@ import Mybookings from "./DashBoard/Customer/Mybookings";
 import Providerdashboard from "./DashBoard/Provider/Providerdashboard";
 import Servicerequests from "./DashBoard/Provider/Servicerequests";
 import Activejobs from "./DashBoard/Provider/Activejobs";
-// import AdminDashboard from "./DashBoard/Admin/AdminDashboard";
+import AdminDashboard from "./DashBoard/Admin/Admindashboard";
+import ManageUsers from "./DashBoard/Admin/Manageusers";
+import ManageProviders from "./DashBoard/Admin/Manageproviders";
+import ManageBookings from "./DashBoard/Admin/Managebookings";
 import "./Styles/dashboard.css";
 function App() {
 
@@ -26,7 +29,10 @@ function App() {
         <Route path="/service-requests" element={<Servicerequests />} />
         <Route path="/active-jobs" element={<Activejobs />} />
 
-        {/* <Route path="/admin-dashboard" element={<AdminDashboard />} /> */}
+        <Route path="/admin-dashboard" element={<AdminDashboard />} />
+        <Route path="/manage-users" element={<ManageUsers />} />
+        <Route path="/manage-providers" element={<ManageProviders />} />
+        <Route path="/manage-bookings" element={<ManageBookings />} />
       </Routes>
     </Router>
   );
