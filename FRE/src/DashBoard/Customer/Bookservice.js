@@ -6,13 +6,15 @@ import { supabase } from "../../Service/supabaseClient";
 
 function Bookservice() {
 
-
   const [selectedService, setSelectedService] = useState("");
   const [date, setDate] = useState("");
   const [address, setAddress] = useState("");
 
   const [bookings, setBookings] = useState([]);
 
+  useEffect(() => {
+  fetchBookings();
+  }, []);
 
   const fetchBookings = async () => {
     const { data, error } = await supabase
@@ -25,10 +27,6 @@ function Bookservice() {
       setBookings(data);
     }
   };
-
-  useEffect(() => {
-    fetchBookings();
-  }, []);
 
 
   const handleSubmit = async (e) => {

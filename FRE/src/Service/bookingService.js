@@ -20,18 +20,3 @@ export const services = [
     description: "AC servicing and repair"
   }
 ];
-
-export const bookings = [
-  {
-    id: 1,
-    service: "Plumbing",
-    date: "20 March",
-    status: "Pending"
-  },
-  {
-    id: 2,
-    service: "House Cleaning",
-    date: "08 March",
-    status: "Completed"
-  }
-];

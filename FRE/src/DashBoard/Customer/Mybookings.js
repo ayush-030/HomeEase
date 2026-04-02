@@ -5,27 +5,32 @@ import { useState, useEffect } from "react";
 import { supabase } from "../../Service/supabaseClient";
 
 function Mybookings() {
-   const [bookings, setBookings] = useState([]);
+  const [bookings, setBookings] = useState([]);
 
-   useEffect(() => {
-      const fetchBookings = async () => {
+  const fetchBookings = async () => {
+    const userEmail = localStorage.getItem("userEmail");
+    const userRole = localStorage.getItem("userRole")
 
-        const userEmail = localStorage.getItem("userEmail");
-        
-        const { data, error } = await supabase
-           .from("bookings")
-           .select("*")
-           .eq("user_email", userEmail);
+    console.log("User Email:", userEmail);
+    console.log("User Role:", userRole);  
 
-        if (error) {
-          console.error("Error fetching bookings:", error);
-        } else {
-          setBookings(data);
-        }
-      };
+    let query = supabase.from("bookings").select("*").eq("user_email", userEmail);;
+    if (userRole !== "admin") {
+      query = query.eq("user_email", userEmail);
+    }
+    const { data, error } = await query;
+    if (error) {
+      console.error("Error fetching bookings:", error);
+    } else {
+      console.log("Fetched data:", data); 
+      setBookings(data);
+    }
+  };
 
-      fetchBookings();
-    }, []);
+  useEffect(() => {
+    fetchBookings();
+  }, []);
+
 
   return (
     <div className="dashboard-container">
