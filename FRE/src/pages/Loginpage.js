@@ -1,5 +1,6 @@
 import { useState } from "react";
 import { useNavigate } from "react-router-dom";
+import { supabase } from "../Service/supabaseClient";
 
 function LoginPage() {
 
@@ -39,7 +40,7 @@ function LoginPage() {
     return null;
   };
 
-  const handleSubmit = (e) => {
+  const handleSubmit = async (e) => {
     e.preventDefault();
 
     const emailError = validateEmail(email);
@@ -62,23 +63,48 @@ function LoginPage() {
     setError("");
 
     if (isLogin) {
+      const { data, error } = await supabase
+        .from("users")
+        .select("*")
+        .eq("email", email)
+        .eq("password", password)
+        .single();
 
-      if (role === "customer") {
+      if (error || !data) {
+        setError("Invalid email or password");
+        return;
+      }
+
+      localStorage.setItem("userEmail", email);
+      localStorage.setItem("userRole", data.role);
+
+      if (data.role === "customer") {
         navigate("/customer-dashboard");
       }
 
-      else if (role === "provider") {
+      else if (data.role === "provider") {
         navigate("/provider-dashboard");
       }
 
-      else if (role === "admin") {
+      else if (data.role === "admin") {
         navigate("/admin-dashboard");
       }
 
-    } else {
-      alert("Registration functionality will be connected to Flask + Supabase later");
     }
+    else {
+      const {data, error } = await supabase
+        .from("users")
+        .insert([
+          { email: email, password: password, role: role }
+        ]);
 
+      if (error) {
+        setError(error.message);
+      } else {
+        alert("Account created successfullly!");
+        setIsLogin(true);
+      }
+    }
   };
 
   return (

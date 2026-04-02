@@ -13,6 +13,7 @@ import ManageUsers from "./DashBoard/Admin/Manageusers";
 import ManageProviders from "./DashBoard/Admin/Manageproviders";
 import ManageBookings from "./DashBoard/Admin/Managebookings";
 import "./Styles/dashboard.css";
+import ProtectedRoute from "./components/ProtectedRoutes";
 function App() {
 
   return (
@@ -21,15 +22,15 @@ function App() {
         <Route path="/" element={<HomePage />} />
         <Route path="/login" element={<LoginPage />} />
         
-        <Route path="/customer-dashboard" element={<Customerdashboard />} />
+        <Route path="/customer-dashboard" element={<ProtectedRoute><Customerdashboard /></ProtectedRoute>} />
         <Route path="/book-service" element={<Bookservice />} />
         <Route path="/my-bookings" element={<Mybookings />} />
 
-        <Route path="/provider-dashboard" element={<Providerdashboard />} />
+        <Route path="/provider-dashboard" element= {<ProtectedRoute><Providerdashboard /></ProtectedRoute>} />
         <Route path="/service-requests" element={<Servicerequests />} />
         <Route path="/active-jobs" element={<Activejobs />} />
 
-        <Route path="/admin-dashboard" element={<AdminDashboard />} />
+        <Route path="/admin-dashboard" element={<ProtectedRoute> <AdminDashboard /> </ProtectedRoute>} />
         <Route path="/manage-users" element={<ManageUsers />} />
         <Route path="/manage-providers" element={<ManageProviders />} />
         <Route path="/manage-bookings" element={<ManageBookings />} />
