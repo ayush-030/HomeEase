@@ -83,14 +83,5 @@ function Sidebar({ role }) {
   );
 }
 
-<button 
-  className="logout-btn"
-  onClick={() => {
-    localStorage.removeItem("userEmail");
-    window.location.href = "/login";
-  }}
->
-  Logout
-</button>
 
 export default Sidebar;

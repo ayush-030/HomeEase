@@ -349,3 +349,121 @@ function LoginPage() {
 }
 
 export default LoginPage;
+
+
+import { Link } from "react-router-dom";
+import { useState } from "react";
+
+
+function Navbar() {
+
+
+  const [openDropdown, setOpenDropdown] = useState(false);
+
+
+  const userEmail = localStorage.getItem("userEmail");
+  const userRole = localStorage.getItem("userRole");
+
+
+  const toggleDropdown = () => {
+    setOpenDropdown(!openDropdown);
+  };
+
+
+  const closeDropdown = () => {
+    setOpenDropdown(false);
+  };
+
+
+  const handleLogout = () => {
+    localStorage.removeItem("userEmail");
+    localStorage.removeItem("userRole");
+    window.location.href = "/"; // redirect to homepage
+  };
+
+
+  return (
+    <nav className="navbar">
+      <div className="nav-container">
+
+
+        <Link to="/" className="logo">
+          Home<span>Ease</span>
+        </Link>
+
+
+        <div className="nav-links">
+
+
+          <a href="#services">Services</a>
+          <a href="#how">How It Works</a>
+          <a href="#benefits">Benefits</a>
+
+
+          {/* 🔹 If NOT logged in */}
+          {!userEmail ? (
+            <Link to="/login">
+              <button className="login-btn">Login</button>
+            </Link>
+          ) : (
+            <>
+              {/* 🔹 Dashboard based on role */}
+              <div className="dropdown">
+
+
+                <button className="dropbtn" onClick={toggleDropdown}>
+                  Dashboard ▾
+                </button>
+
+
+                {openDropdown && (
+                  <div className="dropdown-content">
+
+
+                    {userRole === "customer" && (
+                      <Link to="/customer-dashboard" onClick={closeDropdown}>
+                        Customer Dashboard
+                      </Link>
+                    )}
+
+
+                    {userRole === "provider" && (
+                      <Link to="/provider-dashboard" onClick={closeDropdown}>
+                        Provider Dashboard
+                      </Link>
+                    )}
+
+
+                    {userRole === "admin" && (
+                      <Link to="/admin-dashboard" onClick={closeDropdown}>
+                        Admin Dashboard
+                      </Link>
+                    )}
+
+
+                  </div>
+                )}
+
+
+              </div>
+
+
+              {/* 🔹 Logout button */}
+              <button className="login-btn" onClick={handleLogout}>
+                Logout
+              </button>
+            </>
+          )}
+
+
+        </div>
+
+
+      </div>
+    </nav>
+  );
+}
+
+
+export default Navbar;
+

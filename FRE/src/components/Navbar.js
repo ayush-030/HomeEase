@@ -1,17 +1,25 @@
 import { Link } from "react-router-dom";
-import { useState } from "react";
 
 function Navbar() {
 
-  const [openDropdown, setOpenDropdown] = useState(false);
+  const userEmail = localStorage.getItem("userEmail");
+  const userRole = localStorage.getItem("userRole");
 
-  const toggleDropdown = () => {
-    setOpenDropdown(!openDropdown);
+  const handleLogout = () => {
+    localStorage.removeItem("userEmail");
+    localStorage.removeItem("userRole");
+    window.location.href = "/";
   };
 
-  const closeDropdown = () => {
-    setOpenDropdown(false);
-  };
+  let dashboardRoute = "/";
+
+  if (userRole === "customer") {
+    dashboardRoute = "/customer-dashboard";
+  } else if (userRole === "provider") {
+    dashboardRoute = "/provider-dashboard";
+  } else if (userRole === "admin") {
+    dashboardRoute = "/admin-dashboard";
+  }
 
   return (
     <nav className="navbar">
@@ -26,42 +34,22 @@ function Navbar() {
           <a href="#services">Services</a>
           <a href="#how">How It Works</a>
           <a href="#benefits">Benefits</a>
+     
+          {!userEmail ? (
+            <Link to="/login">
+              <button className="login-btn">Login</button>
+            </Link>
+          ) : (
+            <>
+             
+              <Link to={dashboardRoute}>
+                <button className="login-btn">
+                  Dashboard
+                </button>
+              </Link>
 
-          {/* Dashboard Dropdown */}
-          <div className="dropdown">
-
-            <button
-              className="dropbtn"
-              onClick={toggleDropdown}
-            >
-              Dashboards ▾
-            </button>
-
-            {openDropdown && (
-              <div className="dropdown-content">
-
-                <Link to="/customer-dashboard" onClick={closeDropdown}>
-                  Customer Dashboard
-                </Link>
-
-                <Link to="/provider-dashboard" onClick={closeDropdown}>
-                  Provider Dashboard
-                </Link>
-
-                <Link to="/admin-dashboard" onClick={closeDropdown}>
-                  Admin Dashboard
-                </Link>
-
-              </div>
-            )}
-
-          </div>
-
-          <Link to="/login">
-            <button className="login-btn">
-              Login
-            </button>
-          </Link>
+            </>
+          )}
 
         </div>
 
@@ -73,45 +61,71 @@ function Navbar() {
 export default Navbar;
 
 
-
-
-
-
-
-
 // import { Link } from "react-router-dom";
+// import { useState } from "react";
 
 // function Navbar() {
+
+//   const [openDropdown, setOpenDropdown] = useState(false);
+
+//   const toggleDropdown = () => {
+//     setOpenDropdown(!openDropdown);
+//   };
+
+//   const closeDropdown = () => {
+//     setOpenDropdown(false);
+//   };
+
 //   return (
 //     <nav className="navbar">
 //       <div className="nav-container">
+
 //         <Link to="/" className="logo">
 //           Home<span>Ease</span>
 //         </Link>
 
 //         <div className="nav-links">
+
 //           <a href="#services">Services</a>
 //           <a href="#how">How It Works</a>
 //           <a href="#benefits">Benefits</a>
 
-//         <div className="dashboard-menu">
-//           <span className="dashboard-title">Dashboards ▾</span>
-//           <div className="dashboard-dropdown">
-//             < Link to="/customer-dashboard">
-//               Customer Dashboard
-//             </Link>
-//             <Link to="/provider-dashboard">
-//               Provider Dashboard
-//             </Link>
-//             <Link to="/admin-dashboard">
-//               Admin Dashboard
-//             </Link>
+//           {/* Dashboard Dropdown */}
+//           <div className="dropdown">
+
+//             <button
+//               className="dropbtn"
+//               onClick={toggleDropdown}
+//             >
+//               Dashboards ▾
+//             </button>
+
+//             {openDropdown && (
+//               <div className="dropdown-content">
+
+//                 <Link to="/customer-dashboard" onClick={closeDropdown}>
+//                   Customer Dashboard
+//                 </Link>
+
+//                 <Link to="/provider-dashboard" onClick={closeDropdown}>
+//                   Provider Dashboard
+//                 </Link>
+
+//                 <Link to="/admin-dashboard" onClick={closeDropdown}>
+//                   Admin Dashboard
+//                 </Link>
+
+//               </div>
+//             )}
+
 //           </div>
-//         </div>
 
 //           <Link to="/login">
-//              <button className="login-btn">Login</button>
+//             <button className="login-btn">
+//               Login
+//             </button>
 //           </Link>
+
 //         </div>
 
 //       </div>
@@ -120,3 +134,4 @@ export default Navbar;
 // }
 
 // export default Navbar;
+
