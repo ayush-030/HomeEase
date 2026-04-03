@@ -1,4 +1,5 @@
 import { useEffect, useState } from "react"
+import { useNavigate } from "react-router-dom"
 import API from "../services/api"
 import Navbar from "../components/Navbar"
 
@@ -7,8 +8,8 @@ export default function ProviderDashboard() {
   const [bookings, setBookings] = useState([])
   const [status, setStatus] = useState("")
   const [rating, setRating] = useState({ average: 0, count: 0 })
-  const [reviews, setReviews] = useState([]) // ✅ NEW
 
+  const navigate = useNavigate()
   const user = JSON.parse(localStorage.getItem("user"))
 
   const fetchBookings = async () => {
@@ -27,7 +28,6 @@ export default function ProviderDashboard() {
 
       if (res.data.provider_id) {
         fetchRating(res.data.provider_id)
-        fetchReviews(res.data.provider_id) // ✅ NEW
       }
 
     } catch (error) {
@@ -39,16 +39,6 @@ export default function ProviderDashboard() {
     try {
       const res = await API.get(`/provider/ratings/${providerId}`)
       setRating(res.data)
-    } catch (error) {
-      console.error(error)
-    }
-  }
-
-  // ✅ NEW FUNCTION
-  const fetchReviews = async (providerId) => {
-    try {
-      const res = await API.get(`/provider/reviews/${providerId}`)
-      setReviews(res.data)
     } catch (error) {
       console.error(error)
     }
@@ -149,43 +139,12 @@ export default function ProviderDashboard() {
 
         {/* 📝 REVIEWS SECTION */}
         <div className="bg-white p-6 rounded-xl shadow mb-10">
-
-          <h2 className="text-xl font-semibold mb-4">
-            Customer Reviews
-          </h2>
-
-          {reviews.length === 0 ? (
-
-            <p className="text-gray-500">No reviews yet</p>
-
-          ) : (
-
-            <div className="space-y-4">
-
-              {reviews.map((r, index) => (
-
-                <div key={index} className="border-b pb-3">
-
-                  <p className="font-medium">
-                    👤 {r.customer_name}
-                  </p>
-
-                  <p className="text-yellow-500">
-                    ⭐ {r.rating}
-                  </p>
-
-                  <p className="text-gray-600">
-                    {r.comment || "No comment"}
-                  </p>
-
-                </div>
-
-              ))}
-
-            </div>
-
-          )}
-
+          <button
+            onClick={() => navigate("/provider-reviews")}
+            className="bg-blue-600 text-white px-4 py-2 rounded mt-4"
+          >
+            View All Reviews
+          </button>
         </div>
 
         {/* 📊 STATS */}
