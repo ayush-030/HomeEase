@@ -14,7 +14,7 @@ function Mybookings() {
     console.log("User Email:", userEmail);
     console.log("User Role:", userRole);  
 
-    let query = supabase.from("bookings").select("*").eq("user_email", userEmail);;
+    let query = supabase.from("bookings").select("*")
     if (userRole !== "admin") {
       query = query.eq("user_email", userEmail);
     }
@@ -23,7 +23,7 @@ function Mybookings() {
       console.error("Error fetching bookings:", error);
     } else {
       console.log("Fetched data:", data); 
-      setBookings(data);
+      setBookings(data || []);
     }
   };
 

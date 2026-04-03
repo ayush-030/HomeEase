@@ -24,7 +24,7 @@ function App() {
         
         <Route path="/customer-dashboard" element={<ProtectedRoute><Customerdashboard /></ProtectedRoute>} />
         <Route path="/book-service" element={<Bookservice />} />
-        <Route path="/my-bookings" element={<Mybookings />} />
+        <Route path="/my-bookings" element={<Mybookings />} /> 
 
         <Route path="/provider-dashboard" element= {<ProtectedRoute><Providerdashboard /></ProtectedRoute>} />
         <Route path="/service-requests" element={<Servicerequests />} />

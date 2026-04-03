@@ -14,6 +14,7 @@ function CustomerDashboard() {
 
   useEffect(() => {
 
+    
     const userEmail = localStorage.getItem("userEmail");
 
     if (!userEmail) {
@@ -25,17 +26,24 @@ function CustomerDashboard() {
 
   }, [navigate]);
 
-  // 🔹 Fetch latest bookings
   const fetchBookings = async () => {
 
+
     const userEmail = localStorage.getItem("userEmail");
+    console.log("User Email:", userEmail);
 
     const { data, error } = await supabase
       .from("bookings")
       .select("*")
-      .eq("user_email", userEmail)
-      .order("id", { ascending: false }) // ✅ latest first
-      .limit(5); // ✅ only recent bookings
+     
+      .order("id", { ascending: false }) 
+      .limit(5);
+
+      console.log("ALL DATA:", data);
+
+      console.log("Fetched Data:", data);   
+      console.log("Error:", error);  
+
 
     if (error) {
       console.log("Error fetching bookings:", error);
@@ -44,7 +52,6 @@ function CustomerDashboard() {
     }
   };
 
-  // 🔹 Logout
   const handleLogout = () => {
     localStorage.removeItem("userEmail");
     localStorage.removeItem("userRole");
@@ -68,7 +75,7 @@ function CustomerDashboard() {
 
         <p>Welcome to HomeEase. Book services easily.</p>
 
-        {/* 🔹 SERVICES */}
+      
         <h2>Available Services</h2>
 
         <div className="services-grid">
@@ -77,7 +84,6 @@ function CustomerDashboard() {
           ))}
         </div>
 
-        {/* 🔹 BOOKINGS */}
         <h2>Recent Bookings</h2>
 
         <div className="bookings-grid">

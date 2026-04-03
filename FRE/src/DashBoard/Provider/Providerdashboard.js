@@ -1,5 +1,5 @@
 import { useNavigate } from "react-router-dom";
-import { useEffect, useState } from "react";
+import { useEffect, useState, useCallback} from "react";
 import Sidebar from "../../components/Sidebar";
 import { supabase } from "../../Service/supabaseClient";
 
@@ -10,58 +10,59 @@ function ProviderDashboard() {
   const [requests, setRequests] = useState([]);
   const [activeJobs, setActiveJobs] = useState([]);
 
-  // 🔒 Protect + fetch data
-  useEffect(() => {
-    const userEmail = localStorage.getItem("userEmail");
+  const userEmail = localStorage.getItem("userEmail");
 
-    if (!userEmail) {
-      navigate("/login");
-      return;
-    }
-
-    fetchProviderData();
-  }, [navigate]);
-
-  // 🔹 Fetch data from Supabase
-  const fetchProviderData = async () => {
-
-    // Pending requests
+  const fetchProviderData = useCallback(async () => {
+   
     const { data: requestsData } = await supabase
       .from("bookings")
       .select("*")
       .eq("status", "Pending");
 
-    // Active jobs (Accepted / In Progress etc.)
     const { data: jobsData } = await supabase
       .from("bookings")
       .select("*")
-      .neq("status", "Pending");
+      .eq("provider_email", userEmail)
+      .neq("status", "Rejected");
 
     setRequests(requestsData || []);
     setActiveJobs(jobsData || []);
-  };
+  }, [userEmail]);
 
-  // 🔹 Accept request
+  useEffect(() => {
+  if (!userEmail) {
+    navigate("/login");
+    return;
+  }
+
+  fetchProviderData();
+}, [navigate, fetchProviderData, userEmail]);
+
   const handleAccept = async (id) => {
+
     await supabase
       .from("bookings")
-      .update({ status: "Accepted" })
+      .update({
+        status: "Accepted",
+        providerEmail: userEmail   
+      })
       .eq("id", id);
 
-    fetchProviderData(); // refresh
+    fetchProviderData();
   };
-
-  // 🔹 Reject request
+ 
   const handleReject = async (id) => {
+
     await supabase
       .from("bookings")
-      .update({ status: "Rejected" })
+      .update({
+        status: "Rejected"
+      })
       .eq("id", id);
 
-    fetchProviderData(); // refresh
+    fetchProviderData();
   };
 
-  // 🔹 Logout
   const handleLogout = () => {
     localStorage.removeItem("userEmail");
     localStorage.removeItem("userRole");
@@ -75,7 +76,6 @@ function ProviderDashboard() {
 
       <div className="dashboard-content">
 
-        {/* 🔹 HEADER */}
         <div className="dashboard-header">
           <h1>Provider Dashboard</h1>
 
@@ -86,7 +86,7 @@ function ProviderDashboard() {
 
         <p>Manage your service requests and active jobs.</p>
 
-        {/* 🔹 REQUESTS */}
+        
         <h2>New Service Requests</h2>
 
         <div className="services-grid">
@@ -119,7 +119,7 @@ function ProviderDashboard() {
           )}
         </div>
 
-        {/* 🔹 ACTIVE JOBS */}
+    
         <h2>Active Jobs</h2>
 
         <div className="bookings-grid">
@@ -146,40 +146,71 @@ function ProviderDashboard() {
 
 export default ProviderDashboard;
 
+
+
 // import { useNavigate } from "react-router-dom";
-// import { useEffect } from "react";
+// import { useEffect, useState } from "react";
 // import Sidebar from "../../components/Sidebar";
+// import { supabase } from "../../Service/supabaseClient";
 
 // function ProviderDashboard() {
 
 //   const navigate = useNavigate();
 
-  
+//   const [requests, setRequests] = useState([]);
+//   const [activeJobs, setActiveJobs] = useState([]);
+
 //   useEffect(() => {
+
 //     const userEmail = localStorage.getItem("userEmail");
 
 //     if (!userEmail) {
 //       navigate("/login");
+//       return;
 //     }
+
+//     fetchProviderData();
 //   }, [navigate]);
 
+//   const fetchProviderData = async () => {
+
+//     const { data: requestsData } = await supabase
+//       .from("bookings")
+//       .select("*")
+//       .eq("status", "Pending");
+
+//     const { data: jobsData } = await supabase
+//       .from("bookings")
+//       .select("*")
+//       .neq("status", "Pending");
+
+//     setRequests(requestsData || []);
+//     setActiveJobs(jobsData || []);
+//   };
+
+//   const handleAccept = async (id) => {
+//     await supabase
+//       .from("bookings")
+//       .update({ status: "Accepted"})
+//       .eq("id", id);
+
+//     fetchProviderData(); 
+//   };
+
+//   const handleReject = async (id) => {
+//     await supabase
+//       .from("bookings")
+//       .update({ status: "Rejected" })
+//       .eq("id", id);
+
+//     fetchProviderData(); 
+//   };
 
 //   const handleLogout = () => {
 //     localStorage.removeItem("userEmail");
 //     localStorage.removeItem("userRole");
 //     navigate("/");
 //   };
-
-
-//   const requests = [
-//     { id: 1, service: "Plumbing", customer: "Rahul", location: "Delhi" },
-//     { id: 2, service: "AC Repair", customer: "Amit", location: "Noida" }
-//   ];
-
-//   const activeJobs = [
-//     { id: 1, service: "Cleaning", status: "In Progress" },
-//     { id: 2, service: "Electrical", status: "On the Way" }
-//   ];
 
 //   return (
 //     <div className="dashboard-container">
@@ -188,7 +219,6 @@ export default ProviderDashboard;
 
 //       <div className="dashboard-content">
 
-     
 //         <div className="dashboard-header">
 //           <h1>Provider Dashboard</h1>
 
@@ -199,34 +229,55 @@ export default ProviderDashboard;
 
 //         <p>Manage your service requests and active jobs.</p>
 
-//           <h2>New Service Requests</h2>
+//         <h2>New Service Requests</h2>
 
 //         <div className="services-grid">
-//           {requests.map((req) => (
-//             <div key={req.id} className="service-card">
+//           {requests.length === 0 ? (
+//             <p>No new requests</p>
+//           ) : (
+//             requests.map((req) => (
+//               <div key={req.id} className="service-card">
 
-//               <h3>{req.service}</h3>
-//               <p>Customer: {req.customer}</p>
-//               <p>Location: {req.location}</p>
+//                 <h3>{req.service}</h3>
+//                 <p>Customer: {req.user_email}</p>
+//                 <p>Address: {req.address}</p>
 
-//               <button className="book-btn">Accept</button>
-//               <button className="book-btn">Reject</button>
+//                 <button
+//                   className="book-btn"
+//                   onClick={() => 
+//                   handleAccept(req.id)}
+//                 >
+//                   Accept
+//                 </button>
 
-//             </div>
-//           ))}
+//                 <button
+//                   className="book-btn"
+//                   onClick={() => handleReject(req.id)}
+//                 >
+//                   Reject
+//                 </button>
+
+//               </div>
+//             ))
+//           )}
 //         </div>
 
 //         <h2>Active Jobs</h2>
 
 //         <div className="bookings-grid">
-//           {activeJobs.map((job) => (
-//             <div key={job.id} className="booking-card">
+//           {activeJobs.length === 0 ? (
+//             <p>No active jobs</p>
+//           ) : (
+//             activeJobs.map((job) => (
+//               <div key={job.id} className="booking-card">
 
-//               <h3>{job.service}</h3>
-//               <p>Status: {job.status}</p>
+//                 <h3>{job.service}</h3>
+//                 <p>Status: {job.status}</p>
+//                 <p>Address: {job.address}</p>
 
-//             </div>
-//           ))}
+//               </div>
+//             ))
+//           )}
 //         </div>
 
 //       </div>
