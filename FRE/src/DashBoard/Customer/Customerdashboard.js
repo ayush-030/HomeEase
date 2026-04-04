@@ -13,7 +13,6 @@ function CustomerDashboard() {
   const navigate = useNavigate();
 
   useEffect(() => {
-
     
     const userEmail = localStorage.getItem("userEmail");
 
@@ -28,21 +27,18 @@ function CustomerDashboard() {
 
   const fetchBookings = async () => {
 
-
     const userEmail = localStorage.getItem("userEmail");
     console.log("User Email:", userEmail);
 
     const { data, error } = await supabase
       .from("bookings")
       .select("*")
-     
+      .eq("user_email", userEmail)
       .order("id", { ascending: false }) 
       .limit(5);
-
-      console.log("ALL DATA:", data);
-
-      console.log("Fetched Data:", data);   
-      console.log("Error:", error);  
+      
+      console.log("Bookings:", data);
+      if (error) console.log("Error:", error);
 
 
     if (error) {

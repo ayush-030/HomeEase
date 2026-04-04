@@ -39,6 +39,14 @@ function Sidebar({ role }) {
         <NavLink className="sidebar-item jobs-link" to="/active-jobs">
           Active Jobs
         </NavLink>
+
+        <NavLink className="sidebar-item completed-link" to="/completed-jobs">
+          Completed Jobs
+        </NavLink>
+
+        <NavLink className="sidebar-item profile-link" to="/provider-profile">
+          Profile
+        </NavLink>
       </>
     );
   }

@@ -3,23 +3,30 @@ import Sidebar from "../../components/Sidebar";
 import BookingCard from "../../components/BookingCard";
 import { services } from "../../Service/bookingService";
 import { supabase } from "../../Service/supabaseClient";
+import { useNavigate } from "react-router-dom";
 
 function Bookservice() {
 
   const [selectedService, setSelectedService] = useState("");
+  const [selectedProvider, setSelectedProvider] = useState(null);
   const [date, setDate] = useState("");
   const [address, setAddress] = useState("");
 
   const [bookings, setBookings] = useState([]);
+
+  const navigate = useNavigate();
 
   useEffect(() => {
   fetchBookings();
   }, []);
 
   const fetchBookings = async () => {
+
+    const userEmail = localStorage.getItem("userEmail");
     const { data, error } = await supabase
       .from("bookings")
-      .select("*");
+      .select("*")
+      .eq("user_email", userEmail);
 
     if (error) {
       console.log("Error fetching bookings:", error.message);
@@ -32,6 +39,11 @@ function Bookservice() {
   const handleSubmit = async (e) => {
     e.preventDefault();
     const userEmail = localStorage.getItem("userEmail");
+
+    if (!selectedProvider) {
+      alert("Please select a provider first");
+      return;
+    }
     const { error } = await supabase
       .from("bookings")
       .insert([
@@ -40,7 +52,8 @@ function Bookservice() {
           date: date,
           address: address,
           status: "Pending",
-          user_email: userEmail
+          user_email:userEmail,
+          provider_email: selectedProvider.providerEmail
         }
       ]);
 
@@ -102,7 +115,20 @@ function Bookservice() {
             onChange={(e) => setAddress(e.target.value)}
             required
           />
+          <button
+            type="button"
+            onClick={() => {
+              if (!selectedService) {
+              alert("Please select a service first");
+              return;
+              }
 
+              navigate(`/providers/${selectedService}`);
+            }}
+          >
+            Choose Provider
+          </button>
+        
           <button type="submit">Book Service</button>
         </form>
 
