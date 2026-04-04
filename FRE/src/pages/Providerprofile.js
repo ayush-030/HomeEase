@@ -10,7 +10,6 @@ function Providerprofile() {
   const [provider, setProvider] = useState(null);
 
   useEffect(() => {
-
   const fetchProvider = async () => {
     const { data, error } = await supabase
       .from("providers")
@@ -27,38 +26,12 @@ function Providerprofile() {
     fetchProvider();
   }, [id]);
 
-  const handleBook = async () => {
-
-    const userEmail = localStorage.getItem("userEmail");
-
-    if (!userEmail) {
-      alert("Please login first");
-      navigate("/login");
-      return;
-    }
-
-    const { error } = await supabase
-      .from("bookings")
-      .insert([
-        {
-          service: provider.service_type,
-          address: "User Address", 
-          status: "Pending",
-          user_email: userEmail,
-          provider_email: provider.email
-        }
-      ]);
-
-    if (error) {
-      console.log(error);
-      alert("Booking failed");
-    } else {
-      alert("Booking sent successfully!");
-
-     
-      navigate("/customer-dashboard");
-    }
+  const handleSelect = async () => {
+    localStorage.setItem("selectedProvider", JSON.stringify(provider));
+    navigate("/bookservice");
   };
+
+  if (!provider) return <p>Loading...</p>;
 
  
   if (!provider) return <p>Loading...</p>;
@@ -72,11 +45,11 @@ function Providerprofile() {
 
         <p><strong>Service:</strong> {provider.service_type}</p>
         <p><strong>Experience:</strong> {provider.experience}</p>
-        <p><strong>Phone:</strong> {provider.phone}</p>
-        <p><strong>Rating:</strong> ⭐ {provider.rating}</p>
+        <p><strong>Phone:</strong> {provider.phone || "Not available"}</p>
+        <p><strong>Rating:</strong> ⭐ {provider.rating || "N/A"}</p>
 
-        <button onClick={handleBook}>
-          Book This Provider
+        <button onClick={handleSelect}>
+          Select This Provider
         </button>
 
       </div>

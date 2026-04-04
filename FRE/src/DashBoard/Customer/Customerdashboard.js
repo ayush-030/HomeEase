@@ -33,7 +33,7 @@ function CustomerDashboard() {
     const { data, error } = await supabase
       .from("bookings")
       .select("*")
-      .eq("user_email", userEmail)
+      .eq("providerEmail", userEmail)
       .order("id", { ascending: false }) 
       .limit(5);
       

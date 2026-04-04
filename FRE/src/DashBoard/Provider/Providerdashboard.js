@@ -22,7 +22,7 @@ function ProviderDashboard() {
     const { data: jobsData } = await supabase
       .from("bookings")
       .select("*")
-      .eq("provider_email", userEmail)
+      .eq("providerEmail", userEmail)
       .neq("status", "Rejected");
 
     setRequests(requestsData || []);

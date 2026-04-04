@@ -38,8 +38,8 @@ function App() {
         <Route path="/service-requests" element={<Servicerequests />} />
         <Route path="/active-jobs" element={<Activejobs />} />
         <Route path="/completed-jobs" element={<Completedjobs />} />
-        <Route path="/providers/:service" element={<Serviceproviders />} />
-        <Route path="/provider/:profile" element={<Providerprofile />} />
+        <Route path="/providers-service" element={<Serviceproviders />} />
+        <Route path="/provider-profile" element={<Providerprofile />} />
 
         <Route path="/admin-dashboard" element={<ProtectedRoute> <AdminDashboard /> </ProtectedRoute>} />
         <Route path="/manage-users" element={<ManageUsers />} />

@@ -61,7 +61,6 @@ function LoginPage() {
       return;
     }
 
-    // ✅ NEW VALIDATION
     if (!isLogin && role === "provider" && (!service || !experience)) {
       setError("Please fill provider details");
       return;
@@ -69,7 +68,7 @@ function LoginPage() {
 
     setError("");
 
-    // ================= LOGIN =================
+    // LOGIN 
     if (isLogin) {
       const { data, error } = await supabase
         .from("users")
@@ -93,9 +92,7 @@ function LoginPage() {
       } else if (data.role === "admin") {
         navigate("/admin-dashboard");
       }
-
     }
-
     // ================= SIGNUP =================
     else {
       const { error } = await supabase
@@ -109,16 +106,15 @@ function LoginPage() {
         return;
       }
 
-      // ✅ CREATE PROVIDER PROFILE
       if (role === "provider") {
         const { error: providerError } = await supabase
           .from("providers")
           .insert([
             {
-              email: email.toLowerCase(),
+              providerEmail: email.toLowerCase(),
               name: email.split("@")[0],
-              service_type: service,   // ✅ dynamic
-              experience: experience   // ✅ dynamic
+              service_type: service,   
+              experience: experience  
             }
           ]);
 
@@ -190,7 +186,6 @@ function LoginPage() {
             )}
           </div>
 
-          {/* ✅ PROVIDER FIELDS */}
           {!isLogin && role === "provider" && (
             <>
               <select
