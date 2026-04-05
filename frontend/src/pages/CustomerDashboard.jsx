@@ -134,7 +134,7 @@ export default function CustomerDashboard() {
         <div className="bg-gradient-to-r from-blue-500 to-indigo-600 text-white p-10 rounded-2xl mb-10 shadow">
 
           <h1 className="text-4xl font-bold mb-2">
-            Hi {formatName(user?.full_name || user?.email?.split("@")[0])} 👋
+            Hi {formatName(user?.full_name || user?.email?.split("@")[0])}
           </h1>
 
           <p className="text-lg opacity-90">

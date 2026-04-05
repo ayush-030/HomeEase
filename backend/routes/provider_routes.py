@@ -9,9 +9,8 @@ import math
 provider_bp = Blueprint("provider", __name__)
 
 
-# -----------------------------
 # HAVERSINE DISTANCE FUNCTION
-# -----------------------------
+
 def haversine(lat1, lon1, lat2, lon2):
     R = 6371
 
@@ -26,9 +25,9 @@ def haversine(lat1, lon1, lat2, lon2):
     return R * c
 
 
-# -----------------------------
+
 # CREATE PROVIDER PROFILE
-# -----------------------------
+
 @provider_bp.route("/create-profile", methods=["POST"])
 def create_provider_profile():
 

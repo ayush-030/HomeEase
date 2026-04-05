@@ -51,7 +51,7 @@ export default function Login() {
         <div className="bg-white p-10 rounded-2xl shadow-xl w-96">
 
           <h2 className="text-3xl font-bold text-center mb-6 text-blue-600">
-            Welcome Back 👋
+            Welcome Back
           </h2>
 
           <input
