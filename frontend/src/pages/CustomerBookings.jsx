@@ -1,4 +1,5 @@
 import { useEffect, useState } from "react"
+import { useNavigate } from "react-router-dom"
 import API from "../services/api"
 import Navbar from "../components/Navbar"
 
@@ -9,17 +10,16 @@ export default function CustomerBookings() {
   const [rating, setRating] = useState(0)
   const [comment, setComment] = useState("")
 
+  const navigate = useNavigate()
   const user = JSON.parse(localStorage.getItem("user"))
 
   const fetchBookings = async () => {
-
     try {
       const res = await API.get(`/booking/customer/${user.id}`)
       setBookings(res.data)
     } catch (error) {
       console.error(error)
     }
-
   }
 
   useEffect(() => {
@@ -41,7 +41,6 @@ export default function CustomerBookings() {
         comment
       })
 
-      // ✅ Reset + refresh (no alert now)
       setSelectedBooking(null)
       setRating(0)
       setComment("")
@@ -93,7 +92,6 @@ export default function CustomerBookings() {
                     {b.provider_name}
                   </h3>
 
-                  {/* STATUS BADGE */}
                   <span className={`px-3 py-1 rounded-full text-sm font-medium
                     ${b.status === "PENDING" && "bg-yellow-100 text-yellow-700"}
                     ${b.status === "ACCEPTED" && "bg-green-100 text-green-700"}
@@ -114,21 +112,34 @@ export default function CustomerBookings() {
                   ⏰ {b.time}
                 </p>
 
-                {/* RATE BUTTON */}
-                {b.status === "COMPLETED" && !b.review_given && (
+                {/* ACTION BUTTONS */}
+                <div className="flex gap-3 flex-wrap mt-3">
 
-                  <button
-                    onClick={() => setSelectedBooking(b)}
-                    className="bg-yellow-500 hover:bg-yellow-600 text-white px-4 py-2 rounded"
-                  >
-                    ⭐ Rate Service
-                  </button>
+                  {/* 💬 CHAT BUTTON */}
+                  {(b.status === "ACCEPTED" || b.status === "COMPLETED") && (
+                    <button
+                      onClick={() => navigate(`/chat/${b.id}`)}
+                      className="bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded"
+                    >
+                      💬 Chat
+                    </button>
+                  )}
 
-                )}
+                  {/* ⭐ RATE BUTTON */}
+                  {b.status === "COMPLETED" && !b.review_given && (
+                    <button
+                      onClick={() => setSelectedBooking(b)}
+                      className="bg-yellow-500 hover:bg-yellow-600 text-white px-4 py-2 rounded"
+                    >
+                      ⭐ Rate
+                    </button>
+                  )}
+
+                </div>
 
                 {/* REVIEW DONE */}
                 {b.review_given && (
-                  <p className="text-green-600 text-sm font-medium">
+                  <p className="text-green-600 text-sm font-medium mt-3">
                     ✔ Review Submitted
                   </p>
                 )}
@@ -144,7 +155,6 @@ export default function CustomerBookings() {
       </div>
 
       {/* ⭐ RATING POPUP */}
-
       {selectedBooking && (
 
         <div className="fixed inset-0 bg-black bg-opacity-40 flex justify-center items-center z-50">
@@ -155,7 +165,7 @@ export default function CustomerBookings() {
               Rate Service
             </h2>
 
-            {/* STAR SELECTOR */}
+            {/* STARS */}
             <div className="flex gap-2 mb-4">
 
               {[1, 2, 3, 4, 5].map((star) => (
@@ -163,7 +173,7 @@ export default function CustomerBookings() {
                 <span
                   key={star}
                   onClick={() => setRating(star)}
-                  className={`cursor-pointer text-3xl transition ${
+                  className={`cursor-pointer text-3xl ${
                     star <= rating ? "text-yellow-500" : "text-gray-300"
                   }`}
                 >
@@ -183,7 +193,7 @@ export default function CustomerBookings() {
 
             <button
               onClick={submitReview}
-              className="bg-blue-600 hover:bg-blue-700 text-white w-full py-2 rounded transition"
+              className="bg-blue-600 hover:bg-blue-700 text-white w-full py-2 rounded"
             >
               Submit Review
             </button>

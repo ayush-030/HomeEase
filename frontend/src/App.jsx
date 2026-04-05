@@ -10,6 +10,7 @@ import ProviderProfile from "./pages/ProviderProfile"
 import BookService from "./pages/BookService"
 import CustomerBookings from "./pages/CustomerBookings"
 import ProviderReviews from "./pages/ProviderReviews"
+import Chat from "./pages/Chat"
 
 function App() {
 
@@ -29,6 +30,7 @@ function App() {
         <Route path="/book/:id" element={<BookService />} />
         <Route path="/my-bookings" element={<CustomerBookings />} />
         <Route path="/provider-reviews" element={<ProviderReviews />} />
+        <Route path="/chat/:bookingId" element={<Chat />} />
       </Routes>
 
     </BrowserRouter>

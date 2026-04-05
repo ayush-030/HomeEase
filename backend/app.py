@@ -14,6 +14,7 @@ from routes.provider_routes import provider_bp
 from routes.admin_routes import admin_bp
 from routes.booking_routes import booking_bp
 from routes.review_routes import review_bp
+from routes.chat_routes import chat_bp
 
 app = Flask(__name__)
 app.config.from_object(Config)
@@ -25,6 +26,7 @@ app.register_blueprint(provider_bp, url_prefix="/provider")
 app.register_blueprint(admin_bp, url_prefix="/admin")
 app.register_blueprint(booking_bp, url_prefix="/booking")
 app.register_blueprint(review_bp, url_prefix="/review")
+app.register_blueprint(chat_bp, url_prefix="/chat")
 
 @app.route("/")
 def home():
@@ -36,7 +38,7 @@ def test_db():
         db.session.execute(text("SELECT 1"))
         return {"message": "Database connected successfully"}
     except Exception as e:
-        return {"error": str(e)}
+        return {"error": str(e)}    
 
 if __name__ == "__main__":
     app.run(debug=True)

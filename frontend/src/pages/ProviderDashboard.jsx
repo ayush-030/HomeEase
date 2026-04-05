@@ -63,7 +63,6 @@ export default function ProviderDashboard() {
     }
   }, [status])
 
-  // 📊 Stats
   const total = bookings.length
   const pending = bookings.filter(b => b.status === "PENDING").length
   const accepted = bookings.filter(b => b.status === "ACCEPTED").length
@@ -118,8 +117,8 @@ export default function ProviderDashboard() {
           Provider Dashboard
         </h1>
 
-        {/* ⭐ RATING SUMMARY */}
-        <div className="bg-white p-6 rounded-xl shadow mb-10 flex justify-between items-center">
+        {/* ⭐ RATING */}
+        <div className="bg-white p-6 rounded-xl shadow mb-10 flex justify-between">
 
           <div>
             <p className="text-gray-500">Your Rating</p>
@@ -137,45 +136,30 @@ export default function ProviderDashboard() {
 
         </div>
 
-        {/* 📝 REVIEWS SECTION */}
-        <div className="bg-white p-6 rounded-xl shadow mb-10">
+        {/* REVIEWS */}
+        <div className="mb-10">
           <button
             onClick={() => navigate("/provider-reviews")}
-            className="bg-blue-600 text-white px-4 py-2 rounded mt-4"
+            className="bg-blue-600 text-white px-4 py-2 rounded"
           >
             View All Reviews
           </button>
         </div>
 
-        {/* 📊 STATS */}
+        {/* STATS */}
         <div className="grid grid-cols-2 md:grid-cols-4 gap-6 mb-10">
 
-          <div className="bg-white p-6 rounded-xl shadow text-center">
-            <p className="text-gray-500">Total</p>
-            <h2 className="text-2xl font-bold">{total}</h2>
-          </div>
-
-          <div className="bg-yellow-100 p-6 rounded-xl text-center">
-            <p className="text-yellow-700">Pending</p>
-            <h2 className="text-2xl font-bold">{pending}</h2>
-          </div>
-
-          <div className="bg-green-100 p-6 rounded-xl text-center">
-            <p className="text-green-700">Accepted</p>
-            <h2 className="text-2xl font-bold">{accepted}</h2>
-          </div>
-
-          <div className="bg-blue-100 p-6 rounded-xl text-center">
-            <p className="text-blue-700">Completed</p>
-            <h2 className="text-2xl font-bold">{completed}</h2>
-          </div>
+          <StatCard label="Total" value={total} />
+          <StatCard label="Pending" value={pending} color="yellow" />
+          <StatCard label="Accepted" value={accepted} color="green" />
+          <StatCard label="Completed" value={completed} color="blue" />
 
         </div>
 
         {/* SECTIONS */}
-        <Section title="Pending Requests" bookings={bookings.filter(b => b.status === "PENDING")} updateStatus={updateStatus} />
-        <Section title="Active Jobs" bookings={bookings.filter(b => b.status === "ACCEPTED")} updateStatus={updateStatus} />
-        <Section title="Completed Jobs" bookings={bookings.filter(b => b.status === "COMPLETED")} updateStatus={updateStatus} />
+        <Section title="Pending Requests" bookings={bookings.filter(b => b.status === "PENDING")} updateStatus={updateStatus} navigate={navigate} />
+        <Section title="Active Jobs" bookings={bookings.filter(b => b.status === "ACCEPTED")} updateStatus={updateStatus} navigate={navigate} />
+        <Section title="Completed Jobs" bookings={bookings.filter(b => b.status === "COMPLETED")} updateStatus={updateStatus} navigate={navigate} />
 
       </div>
 
@@ -183,8 +167,25 @@ export default function ProviderDashboard() {
   )
 }
 
-/* 🔥 SECTION COMPONENT */
-function Section({ title, bookings, updateStatus }) {
+/* 🔥 STAT CARD */
+function StatCard({ label, value, color }) {
+
+  const bg = {
+    yellow: "bg-yellow-100 text-yellow-700",
+    green: "bg-green-100 text-green-700",
+    blue: "bg-blue-100 text-blue-700"
+  }
+
+  return (
+    <div className={`p-6 rounded-xl text-center ${bg[color] || "bg-white shadow"}`}>
+      <p>{label}</p>
+      <h2 className="text-2xl font-bold">{value}</h2>
+    </div>
+  )
+}
+
+/* 🔥 SECTION */
+function Section({ title, bookings, updateStatus, navigate }) {
 
   if (bookings.length === 0) return null
 
@@ -206,11 +207,10 @@ function Section({ title, bookings, updateStatus }) {
                 👤 {b.customer_name}
               </p>
 
-              <span className={`px-3 py-1 rounded-full text-sm font-medium
+              <span className={`px-3 py-1 rounded-full text-sm
                 ${b.status === "PENDING" && "bg-yellow-100 text-yellow-700"}
                 ${b.status === "ACCEPTED" && "bg-green-100 text-green-700"}
                 ${b.status === "COMPLETED" && "bg-blue-100 text-blue-700"}
-                ${b.status === "REJECTED" && "bg-red-100 text-red-700"}
               `}>
                 {b.status}
               </span>
@@ -221,8 +221,9 @@ function Section({ title, bookings, updateStatus }) {
             <p>📍 {b.customer_address}, {b.customer_city}</p>
             <p>📅 {b.date} | ⏰ {b.time}</p>
 
-            <div className="flex gap-3 mt-4">
+            <div className="flex gap-3 mt-4 flex-wrap">
 
+              {/* PENDING */}
               {b.status === "PENDING" && (
                 <>
                   <button
@@ -241,6 +242,7 @@ function Section({ title, bookings, updateStatus }) {
                 </>
               )}
 
+              {/* ACCEPTED */}
               {b.status === "ACCEPTED" && (
                 <>
                   <button
@@ -258,6 +260,14 @@ function Section({ title, bookings, updateStatus }) {
                   >
                     WhatsApp
                   </a>
+
+                  {/* 💬 CHAT BUTTON */}
+                  <button
+                    onClick={() => navigate(`/chat/${b.id}`)}
+                    className="bg-indigo-600 text-white px-4 py-2 rounded"
+                  >
+                    💬 Chat
+                  </button>
                 </>
               )}
 
